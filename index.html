@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ラブマインドヨガ｜心の疲労度チェック</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500&display=swap');
+
+    :root {
+      --bg-gradient: linear-gradient(135deg, #fde8f0 0%, #ede8f5 40%, #e8f0f5 100%);
+      --card-bg: rgba(255, 255, 255, 0.72);
+      --card-border: rgba(200, 180, 220, 0.3);
+      --primary: #c498d4;
+      --primary-light: #e8d5f5;
+      --secondary: #98c8b8;
+      --secondary-light: #d5ede8;
+      --warm: #e8a8c0;
+      --warm-light: #fde8f0;
+      --text-dark: #5a3d5a;
+      --text-mid: #7a5a7a;
+      --text-light: #a88aa8;
+      --shadow: 0 8px 32px rgba(180, 140, 200, 0.18);
+      --shadow-hover: 0 12px 40px rgba(180, 140, 200, 0.28);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans JP', 'Zen Maru Gothic', sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-dark);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #d4a8e8 0%, transparent 70%);
+      top: -100px; left: -100px;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #a8c8e8 0%, transparent 70%);
+      bottom: -80px; right: -80px;
+    }
+
+    .floating-petals {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .petal {
+      position: absolute;
+      opacity: 0.22;
+      animation: floatPetal linear infinite;
+    }
+    @keyframes floatPetal {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.22; }
+      90% { opacity: 0.18; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 44px 44px 40px;
+      box-shadow: var(--shadow);
+    }
+
+    .screen { animation: fadeUp 0.6s ease both; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-area {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      font-size: 52px;
+      display: block;
+      margin-bottom: 10px;
+      animation: breathe 4s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.07); }
+    }
+    .logo-title {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 0.08em;
+    }
+    .logo-sub {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-top: 5px;
+      letter-spacing: 0.12em;
+    }
+
+    /* ウェルカム */
+    .intro-text {
+      text-align: center;
+      line-height: 2;
+      font-size: 15px;
+      color: var(--text-mid);
+      margin-bottom: 30px;
+    }
+    .intro-text strong { color: var(--primary); font-weight: 500; }
+
+    .features {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .feature-chip {
+      flex: 1;
+      text-align: center;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px 8px;
+      font-size: 12px;
+      color: var(--text-mid);
+      line-height: 1.6;
+    }
+    .feature-chip span { display: block; font-size: 22px; margin-bottom: 4px; }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      letter-spacing: 0.05em;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--warm) 100%);
+      color: white;
+      box-shadow: 0 4px 20px rgba(196, 152, 212, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(196, 152, 212, 0.5);
+    }
+    .btn-secondary {
+      background: var(--secondary-light);
+      color: var(--text-mid);
+      margin-top: 12px;
+    }
+    .btn-secondary:hover { background: var(--secondary); color: white; }
+
+    /* プログレス */
+    .progress-area { margin-bottom: 28px; }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--primary-light);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--warm));
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* 質問 */
+    .question-num {
+      font-size: 11px;
+      color: var(--text-light);
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+    }
+    .question-text {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-dark);
+      line-height: 1.65;
+      margin-bottom: 8px;
+    }
+    .question-hint {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-bottom: 22px;
+    }
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .choice-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1.5px solid var(--card-border);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.55);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      color: var(--text-mid);
+      text-align: left;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+    .choice-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--text-dark);
+      transform: translateX(4px);
+    }
+    .choice-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--text-dark);
+      box-shadow: 0 2px 12px rgba(196,152,212,0.2);
+    }
+    .choice-icon { font-size: 22px; flex-shrink: 0; width: 30px; text-align: center; }
+
+    .nav-buttons { display: flex; gap: 12px; }
+    .nav-buttons .btn { flex: 1; }
+    .btn-back {
+      background: rgba(200, 180, 220, 0.18);
+      color: var(--text-light);
+      flex: 0 0 auto !important;
+      width: auto !important;
+      padding: 16px 22px;
+    }
+    .btn-back:hover { background: rgba(200, 180, 220, 0.35); }
+
+    /* ローディング */
+    #screen-loading {
+      text-align: center;
+      padding: 60px 44px;
+    }
+    .loader-lotus {
+      font-size: 58px;
+      animation: lotusSpin 2.4s ease-in-out infinite;
+      display: block;
+      margin-bottom: 24px;
+    }
+    @keyframes lotusSpin {
+      0%, 100% { transform: scale(1) rotate(-3deg); }
+      50% { transform: scale(1.12) rotate(3deg); }
+    }
+    .loader-text {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 2.2;
+    }
+    .loader-dots span {
+      display: inline-block;
+      animation: dot 1.4s ease-in-out infinite both;
+      font-size: 20px;
+      color: var(--primary);
+    }
+    .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot {
+      0%, 80%, 100% { transform: scale(0.5); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 結果 */
+    .result-header { text-align: center; margin-bottom: 28px; }
+    .result-level-icon {
+      font-size: 68px;
+      display: block;
+      margin-bottom: 12px;
+      animation: breathe 3.5s ease-in-out infinite;
+    }
+    .result-level-label {
+      font-size: 11px;
+      color: var(--text-light);
+      letter-spacing: 0.18em;
+      margin-bottom: 6px;
+    }
+    .result-level-name {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .result-score-bar-wrap { margin: 16px auto 0; max-width: 300px; }
+    .result-score-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+    .result-score-bg {
+      height: 8px;
+      background: var(--primary-light);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .result-score-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1.3s ease;
+    }
+
+    .result-message {
+      background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(240,230,250,0.65));
+      border-left: 3px solid var(--primary);
+      border-radius: 0 16px 16px 0;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      font-size: 14.5px;
+      line-height: 1.9;
+      color: var(--text-mid);
+    }
+    .result-message p + p { margin-top: 10px; }
+
+    /* 呼吸ガイド */
+    .breath-guide {
+      background: linear-gradient(135deg, #ede8f5 0%, #e8f0f5 100%);
+      border-radius: 22px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 26px;
+    }
+    .breath-title {
+      font-size: 13px;
+      color: var(--text-mid);
+      letter-spacing: 0.06em;
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+    .breath-circle-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
+    .breath-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(196,152,212,0.35), rgba(168,216,200,0.25));
+      border: 2px solid rgba(196,152,212,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+    .breath-circle.inhale {
+      animation: inhaleAnim 4s ease-in-out forwards;
+    }
+    .breath-circle.hold {
+      animation: holdAnim 0.1s ease forwards;
+    }
+    .breath-circle.exhale {
+      animation: exhaleAnim 6s ease-in-out forwards;
+    }
+    @keyframes inhaleAnim {
+      from { transform: scale(1); opacity: 0.7; }
+      to { transform: scale(1.45); opacity: 1; }
+    }
+    @keyframes holdAnim {
+      0%, 100% { transform: scale(1.45); }
+    }
+    @keyframes exhaleAnim {
+      from { transform: scale(1.45); opacity: 1; }
+      to { transform: scale(1); opacity: 0.7; }
+    }
+    .breath-instruction {
+      font-size: 14px;
+      color: var(--text-mid);
+      min-height: 22px;
+      margin-bottom: 12px;
+    }
+    .breath-btn {
+      background: none;
+      border: 1.5px solid var(--primary);
+      color: var(--primary);
+      border-radius: 50px;
+      padding: 8px 26px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .breath-btn:hover { background: var(--primary); color: white; }
+
+    /* アドバイス */
+    .advice-section-title {
+      font-size: 12px;
+      color: var(--text-light);
+      letter-spacing: 0.14em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .advice-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--card-border);
+    }
+
+    .advice-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; }
+    .advice-card {
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .advice-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+    .advice-card-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      background: var(--primary-light);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .advice-card-body { flex: 1; }
+    .advice-card-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+    .advice-card-text {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.75;
+    }
+    .advice-card-tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 10px;
+      margin-top: 6px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+    .tag-breath { background: #d5ede8; color: #2d7a68; }
+    .tag-meditation { background: #e8d5f5; color: #6a3a8a; }
+    .tag-body { background: #fde8f0; color: #8a3a5a; }
+    .tag-mind { background: #e8edf5; color: #3a5a8a; }
+    .tag-energy { background: #f5edd5; color: #7a5a1a; }
+
+    /* レベル別カラー */
+    .level-low .result-level-name { color: #4aaa88; }
+    .level-low .result-score-fill { background: linear-gradient(90deg, #98c8b8, #4aaa88); }
+    .level-mid .result-level-name { color: #c49830; }
+    .level-mid .result-score-fill { background: linear-gradient(90deg, #e8c878, #c49830); }
+    .level-high .result-level-name { color: #c46090; }
+    .level-high .result-score-fill { background: linear-gradient(90deg, #e8a8c8, #c46090); }
+    .level-very-high .result-level-name { color: #9848c8; }
+    .level-very-high .result-score-fill { background: linear-gradient(90deg, #c498d4, #9848c8); }
+
+    .footer-note {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--text-light);
+      margin-top: 18px;
+      line-height: 1.9;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 500px) {
+      .card { padding: 30px 22px 26px; }
+      .question-text { font-size: 16px; }
+      .features { flex-wrap: wrap; }
+      .feature-chip { flex: 0 0 calc(50% - 6px); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="floating-petals" id="petals"></div>
+
+<div class="container">
+
+  <!-- ウェルカム画面 -->
+  <div class="card screen" id="screen-welcome">
+    <div class="logo-area">
+      <span class="logo-icon">🌸</span>
+      <div class="logo-title">ラブマインドヨガ</div>
+      <div class="logo-sub">心の疲労度チェック</div>
+    </div>
+    <p class="intro-text">
+      今日の<strong>あなたの心</strong>は、どんな状態ですか？<br><br>
+      10個の質問で<strong>心の疲れ度合い</strong>を測定し、<br>
+      あなたにぴったりの<strong>心を緩めるアドバイス</strong>をお届けします。
+    </p>
+    <div class="features">
+      <div class="feature-chip"><span>🧘</span>瞑想・呼吸法</div>
+      <div class="feature-chip"><span>🧠</span>脳科学に基づく</div>
+      <div class="feature-chip"><span>💚</span>自己受容</div>
+      <div class="feature-chip"><span>⚡</span>エネルギーケア</div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">✨ 心のチェックを始める</button>
+  </div>
+
+  <!-- 質問画面 -->
+  <div class="card screen hidden" id="screen-quiz">
+    <div class="logo-area" style="margin-bottom:18px;">
+      <span class="logo-icon" style="font-size:30px; margin-bottom:6px;">🌸</span>
+      <div class="logo-title" style="font-size:15px;">心の疲労度チェック</div>
+    </div>
+    <div class="progress-area">
+      <div class="progress-label">
+        <span id="progress-text">質問 1 / 10</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="question-num" id="q-num">QUESTION 01</div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-hint" id="q-hint"></div>
+    <div class="choices" id="q-choices"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-back" onclick="prevQuestion()" id="btn-back">← 戻る</button>
+      <button class="btn btn-primary" onclick="nextQuestion()" id="btn-next" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div class="card screen hidden" id="screen-loading">
+    <span class="loader-lotus">🪷</span>
+    <p class="loader-text">
+      あなたの心の状態を<br>丁寧に読み解いています<br><br>
+      <span class="loader-dots"><span>•</span><span>•</span><span>•</span></span>
+    </p>
+  </div>
+
+  <!-- 結果画面 -->
+  <div class="card screen hidden" id="screen-result">
+    <div class="result-header">
+      <span class="result-level-icon" id="r-icon"></span>
+      <div class="result-level-label">あなたの心の疲労度</div>
+      <div class="result-level-name" id="r-name"></div>
+      <div class="result-score-bar-wrap">
+        <div class="result-score-label"><span>穏やか</span><span>疲れている</span></div>
+        <div class="result-score-bg">
+          <div class="result-score-fill" id="r-score-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-message" id="r-message"></div>
+
+    <div class="breath-guide">
+      <div class="breath-title">🌬️ 今すぐできる ナディ・ショーダナ呼吸法</div>
+      <div class="breath-circle-wrap">
+        <div class="breath-circle" id="breath-circle" onclick="toggleBreath()">始める</div>
+      </div>
+      <div class="breath-instruction" id="breath-instruction">円をタップして深呼吸を始めましょう</div>
+      <button class="breath-btn" id="breath-btn" onclick="toggleBreath()">▶ 呼吸を始める</button>
+    </div>
+
+    <div class="advice-section-title">おすすめの実践法</div>
+    <div class="advice-cards" id="r-advice"></div>
+
+    <button class="btn btn-primary" onclick="retakeQuiz()" style="margin-bottom:12px;">もう一度チェックする</button>
+    <button class="btn btn-secondary" onclick="shareResult()">結果をコピーする 📋</button>
+
+    <div class="footer-note">
+      ラブマインドヨガ指導者養成講座の叡智に基づいたアドバイスです。<br>
+      毎日の実践で、心が少しずつ解れていきます 🌸
+    </div>
+  </div>
+
+</div>
+
+<script>
+// 花びら
+(function() {
+  const c = document.getElementById('petals');
+  const s = ['🌸','🌷','✿','❀','🌼','🌺'];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div');
+    el.className = 'petal';
+    el.textContent = s[i % s.length];
+    el.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*120-20}%;font-size:${12+Math.random()*14}px;animation-duration:${14+Math.random()*20}s;animation-delay:${Math.random()*18}s`;
+    c.appendChild(el);
+  }
+})();
+
+const questions = [
+  {
+    text: '朝、目が覚めたとき、どんな気持ちですか？',
+    hint: '今日の朝の感覚を思い出してみてください',
+    choices: [
+      { icon: '☀️', text: 'すっきりして、今日も頑張ろうと思える', score: 0 },
+      { icon: '🌤️', text: 'まあまあ。少し眠いけど大丈夫', score: 1 },
+      { icon: '🌥️', text: '体が重くて、なかなか起き上がれない', score: 2 },
+      { icon: '🌧️', text: '起きるのがつらい。また朝が来てしまったと感じる', score: 3 },
+    ]
+  },
+  {
+    text: '最近、自分自身にどんな言葉をかけていますか？',
+    hint: '潜在意識の中の声に耳を傾けてみてください',
+    choices: [
+      { icon: '💚', text: '「よくやっている」「自分を大切に」と言い聞かせられる', score: 0 },
+      { icon: '💛', text: '時々自分を責めてしまうこともある', score: 1 },
+      { icon: '🧡', text: '「自分はダメだ」と思うことが多い', score: 2 },
+      { icon: '❤️', text: 'いつも自分を責めてしまい、自己嫌悪が続いている', score: 3 },
+    ]
+  },
+  {
+    text: '今、体の緊張感はどのくらいですか？',
+    hint: '肩・首・背中・お腹など全身を感じてみてください',
+    choices: [
+      { icon: '🌊', text: '体がふんわりリラックスしている', score: 0 },
+      { icon: '🍃', text: '少し肩や首が張っている程度', score: 1 },
+      { icon: '🪨', text: '体がこわばって重い感じがある', score: 2 },
+      { icon: '⚡', text: '体全体がガチガチで、痛みを感じるほど', score: 3 },
+    ]
+  },
+  {
+    text: '最近の感情の波はどんな状態ですか？',
+    hint: '最近1週間の感情パターンを振り返ってみてください',
+    choices: [
+      { icon: '😊', text: '穏やかで、喜びを感じることが多い', score: 0 },
+      { icon: '😐', text: 'たまにイライラしたり落ち込むことがある', score: 1 },
+      { icon: '😟', text: '気分の波が激しく、コントロールが難しい', score: 2 },
+      { icon: '😔', text: '深い疲れや悲しさ、虚無感が続いている', score: 3 },
+    ]
+  },
+  {
+    text: '日常の小さなことを楽しめていますか？',
+    hint: '食事・風景・会話など、日々の小さな喜びについて',
+    choices: [
+      { icon: '🎶', text: 'ちょっとしたことに喜びや美しさを感じられる', score: 0 },
+      { icon: '🎵', text: '時々は楽しいと感じる瞬間がある', score: 1 },
+      { icon: '🎼', text: '楽しいはずのことが、なんとなく楽しくない', score: 2 },
+      { icon: '🔇', text: '何をしても感情が動かず、無感動な状態が続いている', score: 3 },
+    ]
+  },
+  {
+    text: '人との関わりについてどう感じていますか？',
+    hint: '家族・友人・同僚など周りの人との関係について',
+    choices: [
+      { icon: '🤗', text: '人と話すと元気になる。つながりを心地よく感じる', score: 0 },
+      { icon: '🙂', text: '普通にコミュニケーションできている', score: 1 },
+      { icon: '😶', text: '人と関わるのがおっくう、疲れてしまう', score: 2 },
+      { icon: '🚪', text: '一人でいたい、人と関わりたくない気持ちが強い', score: 3 },
+    ]
+  },
+  {
+    text: '最近、自分の「呼吸」に気づけていますか？',
+    hint: '普段、呼吸の深さや質を意識できているかどうか',
+    choices: [
+      { icon: '🌬️', text: 'よく深呼吸をして、呼吸が穏やかだと感じる', score: 0 },
+      { icon: '💨', text: 'たまに呼吸が浅いと気づくことがある', score: 1 },
+      { icon: '😮‍💨', text: 'ほとんど呼吸を意識することがなく、浅い気がする', score: 2 },
+      { icon: '😤', text: '息苦しさや、胸が締め付けられる感覚がある', score: 3 },
+    ]
+  },
+  {
+    text: '睡眠はとれていますか？',
+    hint: '最近1週間の睡眠の質と量について',
+    choices: [
+      { icon: '🌙', text: '毎日ぐっすり眠れて、目覚めも爽快', score: 0 },
+      { icon: '💤', text: 'まあまあ眠れているが、たまに疲れが残る', score: 1 },
+      { icon: '🌛', text: '眠りが浅く、夜中に目が覚めることが多い', score: 2 },
+      { icon: '🦉', text: '全然眠れない、または寝すぎてしまう日が続いている', score: 3 },
+    ]
+  },
+  {
+    text: '自分の本音に、どのくらい正直に生きていますか？',
+    hint: '自分らしさ・本音・価値観との一致について',
+    choices: [
+      { icon: '🌟', text: '自分の気持ちを大切にしながら行動できている', score: 0 },
+      { icon: '⭐', text: '時々は我慢することもある', score: 1 },
+      { icon: '🌑', text: '本音を抑えて、周りに合わせることが多い', score: 2 },
+      { icon: '💭', text: '自分が何をしたいのか、もう分からなくなっている', score: 3 },
+    ]
+  },
+  {
+    text: '今この瞬間、自分を「愛している」と感じられますか？',
+    hint: 'ラブマインドヨガの核心 ー アナハタ（心のチャクラ）の状態',
+    choices: [
+      { icon: '💗', text: '不完全でも、今の自分を愛しいと感じられる', score: 0 },
+      { icon: '💛', text: '時々は自分を認められる瞬間がある', score: 1 },
+      { icon: '🤍', text: '自分を愛するって、何か難しく感じてしまう', score: 2 },
+      { icon: '🖤', text: '自分が嫌いで、存在が申し訳なく感じることがある', score: 3 },
+    ]
+  },
+];
+
+const RESULTS = [
+  {
+    level: 'level-low',
+    icon: '🌿',
+    name: '心が穏やか',
+    maxScore: 8,
+    message: '<p>今のあなたの心は、とても良い状態にあります。日々の小さな実践が、確実に心の土台を育てているのでしょう。</p><p>この穏やかさを保ちながら、さらに深い「自己受容」と「愛」の感覚を広げていく絶好のタイミングです。アナハタチャクラ（心のエネルギーセンター）を磨いて、さらに豊かな内側の世界へ。</p>',
+    advices: [
+      { icon: '🪷', title: 'ありがとう瞑想で心を拡げる', text: '感謝の気持ちを瞑想に組み込むことで、愛とつながりの感覚がさらに深まります。朝の5分間、大切な人や自然への感謝を静かに感じてみましょう。', tag: 'tag-meditation', tagText: '瞑想' },
+      { icon: '💚', title: 'アナハタチャクラのアーサナ', text: 'ハートチャクラに働きかけるヨガのポーズを実践。胸を開くポーズで、愛と自己受容のエネルギーをさらに高めましょう。', tag: 'tag-body', tagText: 'ヨガ' },
+      { icon: '✨', title: '現実創造のワーク', text: '心が穏やかな今こそ、理想の自分・理想の現実をイメージするワークが最も効果的。潜在意識に豊かさの種を植えましょう。', tag: 'tag-mind', tagText: 'マインド' },
+    ]
+  },
+  {
+    level: 'level-mid',
+    icon: '🌼',
+    name: '少し疲れが溜まっています',
+    maxScore: 16,
+    message: '<p>あなたの心は今、少し疲れのサインを出しています。日常の頑張りが積み重なって、エネルギーが少し消耗している状態です。</p><p>大丈夫。これはただの「充電のサイン」。コンフォートゾーンの外に出てきた証拠かもしれません。今日から少しだけ、自分を休ませる時間を意図的につくってあげましょう。</p>',
+    advices: [
+      { icon: '🌬️', title: 'ナディ・ショーダナ（交互呼吸法）', text: '左右の鼻を交互に使う呼吸法で、脳と神経系のバランスを整えます。1日5〜10分続けることで、エネルギーの流れが滑らかになります。', tag: 'tag-breath', tagText: '呼吸法' },
+      { icon: '🧘', title: '数息観（すうそくかん）で今に戻る', text: '呼吸を数えるシンプルな瞑想。「1、2、3…10」と数えながら、散漫な思考を静め、今この瞬間に意識を戻します。', tag: 'tag-meditation', tagText: '瞑想' },
+      { icon: '⚡', title: 'エネルギーの使い方を見直す', text: '何に時間とエネルギーを使っているか振り返りましょう。消耗していることを1つやめ、自分を満たすことを1つ増やすことから始めてみて。', tag: 'tag-energy', tagText: 'エネルギー' },
+    ]
+  },
+  {
+    level: 'level-high',
+    icon: '🌷',
+    name: 'かなり心が疲れています',
+    maxScore: 22,
+    message: '<p>今のあなたは、長い間頑張りすぎているかもしれません。心と体が「もう少し休んで」と訴えています。</p><p>ラブマインドヨガでは、心と体は繋がっていると教えています。今感じているつらさは、あなたが弱いのではなく、たくさんのことを引き受けてきた証です。まず、深く息を吐いて。自分を責めなくていいんです。</p>',
+    advices: [
+      { icon: '💜', title: 'セルフチューニング〜自分に戻る〜', text: '手を胸に当て、自分の心拍を感じながら「私は安全、私は愛されている」と心の中で繰り返します。5分だけでも効果があります。', tag: 'tag-meditation', tagText: '瞑想' },
+      { icon: '🎵', title: '声と振動でリリース', text: '「アー」「ウー」などの声を出すだけで、体の振動が心の緊張を解きほぐします。一人の空間で、思い切り声を出してみましょう。', tag: 'tag-body', tagText: '声・振動' },
+      { icon: '🌬️', title: '4-4-8呼吸法で神経を落ち着かせる', text: '4秒吸って→4秒止めて→8秒かけてゆっくり吐く。副交感神経を優位にし、不安や緊張を和らげます。1日3セット試してみて。', tag: 'tag-breath', tagText: '呼吸法' },
+    ]
+  },
+  {
+    level: 'level-very-high',
+    icon: '🌸',
+    name: '今すぐ心を休めてあげて',
+    maxScore: 30,
+    message: '<p>今のあなたの心は、かなり疲れています。それでもここを開いてくれた。それだけで充分です。</p><p>「コンフォートゾーン」の概念が教えてくれるように、強い不安や辛さは、変化の入り口のサインでもあります。今この苦しさの中にいるあなたに伝えたい。あなたは一人じゃない。あなたの存在には、ちゃんと価値があります。</p><p>今日は何もしなくていい。まずゆっくり息を吐いてください。</p>',
+    advices: [
+      { icon: '🌊', title: '丹田瞑想〜ただ息をする〜', text: 'おへその下（丹田）に手を置いて、ただ呼吸するだけ。考えなくていい。ただ今ここにいることを感じて。5分で充分です。', tag: 'tag-meditation', tagText: '瞑想' },
+      { icon: '🤍', title: 'チェックイン瞑想', text: '「今、私はどんな状態にある？」と自分に問いかけるだけの瞑想。答えを出さなくていい。ただ感じることで、心が少し楽になります。', tag: 'tag-mind', tagText: 'マインド' },
+      { icon: '🌸', title: '自己受容のアファメーション', text: '「今のままの私で充分」「私は愛される価値がある」を鏡の前でゆっくり言ってみてください。最初は信じられなくても大丈夫。続けることで少しずつ変わります。', tag: 'tag-mind', tagText: 'セルフケア' },
+    ]
+  },
+];
+
+let currentQ = 0, answers = [], selectedChoice = null;
+let breathRunning = false, breathTimer = null, bPhaseIdx = 0;
+
+const breathPhases = [
+  { text: '鼻から ゆっくり吸って…', cls: 'inhale', label: '吸う', dur: 4000 },
+  { text: 'そのまま息を止めて…', cls: 'hold', label: '止める', dur: 4000 },
+  { text: '鼻からゆっくり吐いて…', cls: 'exhale', label: '吐く', dur: 6000 },
+  { text: '少し止めて…', cls: 'hold', label: '止める', dur: 2000 },
+];
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  const el = document.getElementById(id);
+  el.classList.remove('hidden');
+  el.style.animation = 'none';
+  requestAnimationFrame(() => { el.style.animation = ''; });
+}
+
+function startQuiz() {
+  currentQ = 0; answers = []; selectedChoice = null;
+  renderQuestion();
+  showScreen('screen-quiz');
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const total = questions.length;
+  const pct = Math.round((currentQ / total) * 100);
+  document.getElementById('progress-text').textContent = `質問 ${currentQ + 1} / ${total}`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-num').textContent = 'QUESTION ' + String(currentQ + 1).padStart(2, '0');
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-hint').textContent = q.hint;
+
+  const choicesEl = document.getElementById('q-choices');
+  choicesEl.innerHTML = '';
+  selectedChoice = answers[currentQ] !== undefined ? answers[currentQ] : null;
+
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn' + (selectedChoice === i ? ' selected' : '');
+    btn.innerHTML = `<span class="choice-icon">${c.icon}</span><span>${c.text}</span>`;
+    btn.onclick = () => selectChoice(i);
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('btn-next').disabled = (selectedChoice === null);
+  document.getElementById('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+}
+
+function selectChoice(idx) {
+  selectedChoice = idx;
+  document.querySelectorAll('.choice-btn').forEach((b, i) => b.classList.toggle('selected', i === idx));
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (selectedChoice === null) return;
+  answers[currentQ] = selectedChoice;
+  if (currentQ < questions.length - 1) { currentQ++; renderQuestion(); }
+  else showResults();
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    if (selectedChoice !== null) answers[currentQ] = selectedChoice;
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  showScreen('screen-loading');
+  setTimeout(() => {
+    const total = answers.reduce((s, a, qi) => s + questions[qi].choices[a].score, 0);
+    const max = questions.length * 3;
+    const pct = Math.round((total / max) * 100);
+    const result = RESULTS.find(r => total <= r.maxScore) || RESULTS[RESULTS.length - 1];
+    renderResult(result, pct);
+    showScreen('screen-result');
+  }, 2400);
+}
+
+function renderResult(result, pct) {
+  document.getElementById('screen-result').className = 'card screen ' + result.level;
+  document.getElementById('r-icon').textContent = result.icon;
+  document.getElementById('r-name').textContent = result.name;
+  document.getElementById('r-message').innerHTML = result.message;
+
+  const fill = document.getElementById('r-score-fill');
+  fill.style.width = '0%';
+  setTimeout(() => { fill.style.width = pct + '%'; }, 150);
+
+  const adviceEl = document.getElementById('r-advice');
+  adviceEl.innerHTML = '';
+  result.advices.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'advice-card';
+    div.innerHTML = `<div class="advice-card-icon">${a.icon}</div><div class="advice-card-body"><div class="advice-card-title">${a.title}</div><div class="advice-card-text">${a.text}</div><span class="advice-card-tag ${a.tag}">${a.tagText}</span></div>`;
+    adviceEl.appendChild(div);
+  });
+
+  stopBreath();
+}
+
+function retakeQuiz() {
+  currentQ = 0; answers = []; selectedChoice = null;
+  renderQuestion();
+  showScreen('screen-quiz');
+}
+
+function shareResult() {
+  const name = document.getElementById('r-name').textContent;
+  navigator.clipboard.writeText(`🌸 ラブマインドヨガ 心の疲労度チェック\n\n結果: ${name}\n\nあなたも試してみて。`).then(() => alert('結果をコピーしました 🌸')).catch(() => alert('コピーに失敗しました。'));
+}
+
+function toggleBreath() {
+  breathRunning ? stopBreath() : startBreath();
+}
+
+function startBreath() {
+  breathRunning = true;
+  bPhaseIdx = 0;
+  document.getElementById('breath-btn').textContent = '■ 呼吸を止める';
+  runBreathPhase();
+}
+
+function runBreathPhase() {
+  if (!breathRunning) return;
+  const phase = breathPhases[bPhaseIdx];
+  const circle = document.getElementById('breath-circle');
+  circle.className = 'breath-circle ' + phase.cls;
+  circle.textContent = phase.label;
+  document.getElementById('breath-instruction').textContent = phase.text;
+  breathTimer = setTimeout(() => {
+    if (!breathRunning) return;
+    bPhaseIdx = (bPhaseIdx + 1) % breathPhases.length;
+    runBreathPhase();
+  }, phase.dur);
+}
+
+function stopBreath() {
+  breathRunning = false;
+  clearTimeout(breathTimer);
+  const circle = document.getElementById('breath-circle');
+  circle.className = 'breath-circle';
+  circle.textContent = '始める';
+  document.getElementById('breath-instruction').textContent = '円をタップして深呼吸を始めましょう';
+  document.getElementById('breath-btn').textContent = '▶ 呼吸を始める';
+}
+</script>
+</body>
+</html>
