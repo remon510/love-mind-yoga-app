@@ -432,6 +432,114 @@
     }
     .breath-btn:hover { background: var(--primary); color: white; }
 
+    .breath-name {
+      font-size: 12px;
+      color: var(--text-light);
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+    .breath-desc {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    /* アファメーション */
+    .affirmation-section {
+      background: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(240,230,252,0.6));
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 26px 28px;
+      margin-bottom: 26px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .affirmation-label {
+      font-size: 11px;
+      color: var(--text-light);
+      letter-spacing: 0.16em;
+      margin-bottom: 16px;
+    }
+    .affirmation-carousel {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .affirmation-text {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--text-dark);
+      line-height: 1.7;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .affirmation-text.fade-out {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    .affirmation-text.fade-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .affirmation-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .affirmation-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      transition: background 0.3s, transform 0.3s;
+      cursor: pointer;
+    }
+    .affirmation-dot.active {
+      background: var(--primary);
+      transform: scale(1.3);
+    }
+    .affirmation-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .affirmation-nav button {
+      background: none;
+      border: 1.5px solid var(--card-border);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-light);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .affirmation-nav button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .affirmation-auto-btn {
+      font-size: 11px;
+      color: var(--text-light);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .affirmation-auto-btn:hover { color: var(--primary); }
+    .affirmation-auto-btn.active { color: var(--primary); }
+
     /* アドバイス */
     .advice-section-title {
       font-size: 12px;
@@ -605,12 +713,27 @@
     <div class="result-message" id="r-message"></div>
 
     <div class="breath-guide">
-      <div class="breath-title">🌬️ 今すぐできる ナディ・ショーダナ呼吸法</div>
+      <div class="breath-name" id="r-breath-name"></div>
+      <div class="breath-title" id="r-breath-title"></div>
+      <div class="breath-desc" id="r-breath-desc"></div>
       <div class="breath-circle-wrap">
         <div class="breath-circle" id="breath-circle" onclick="toggleBreath()">始める</div>
       </div>
       <div class="breath-instruction" id="breath-instruction">円をタップして深呼吸を始めましょう</div>
       <button class="breath-btn" id="breath-btn" onclick="toggleBreath()">▶ 呼吸を始める</button>
+    </div>
+
+    <div class="affirmation-section" id="affirmation-section">
+      <div class="affirmation-label">💬 今日のアファメーション</div>
+      <div class="affirmation-carousel">
+        <div class="affirmation-text fade-in" id="affirmation-text"></div>
+      </div>
+      <div class="affirmation-dots" id="affirmation-dots"></div>
+      <div class="affirmation-nav">
+        <button onclick="affirmationPrev()" title="前へ">‹</button>
+        <button class="affirmation-auto-btn active" id="affirmation-auto-btn" onclick="toggleAffirmationAuto()">自動</button>
+        <button onclick="affirmationNext()" title="次へ">›</button>
+      </div>
     </div>
 
     <div class="advice-section-title">おすすめの実践法</div>
@@ -751,6 +874,24 @@ const RESULTS = [
     name: '心が穏やか',
     maxScore: 8,
     message: '<p>今のあなたの心は、とても良い状態にあります。日々の小さな実践が、確実に心の土台を育てているのでしょう。</p><p>この穏やかさを保ちながら、さらに深い「自己受容」と「愛」の感覚を広げていく絶好のタイミングです。アナハタチャクラ（心のエネルギーセンター）を磨いて、さらに豊かな内側の世界へ。</p>',
+    breathConfig: {
+      name: 'ナディ・ショーダナ呼吸法',
+      title: '🌬️ 今すぐできる 交互鼻孔呼吸',
+      desc: '左右のエネルギーを整え、心をさらに豊かに広げます',
+      phases: [
+        { text: '右の鼻からゆっくり吸って…', cls: 'inhale', label: '吸う', dur: 4000 },
+        { text: 'そのまま止めて…', cls: 'hold', label: '止める', dur: 4000 },
+        { text: '左の鼻からゆっくり吐いて…', cls: 'exhale', label: '吐く', dur: 6000 },
+        { text: '少し止めて…', cls: 'hold', label: '止める', dur: 2000 },
+      ]
+    },
+    affirmations: [
+      '私は今、十分に満たされている',
+      '私の心は愛で満ちている',
+      'すべては完璧なタイミングで流れている',
+      '私は豊かさを受け取る準備ができている',
+      '今この瞬間が、最高の贈り物',
+    ],
     advices: [
       { icon: '🪷', title: 'ありがとう瞑想で心を拡げる', text: '感謝の気持ちを瞑想に組み込むことで、愛とつながりの感覚がさらに深まります。朝の5分間、大切な人や自然への感謝を静かに感じてみましょう。', tag: 'tag-meditation', tagText: '瞑想' },
       { icon: '💚', title: 'アナハタチャクラのアーサナ', text: 'ハートチャクラに働きかけるヨガのポーズを実践。胸を開くポーズで、愛と自己受容のエネルギーをさらに高めましょう。', tag: 'tag-body', tagText: 'ヨガ' },
@@ -763,6 +904,24 @@ const RESULTS = [
     name: '少し疲れが溜まっています',
     maxScore: 16,
     message: '<p>あなたの心は今、少し疲れのサインを出しています。日常の頑張りが積み重なって、エネルギーが少し消耗している状態です。</p><p>大丈夫。これはただの「充電のサイン」。コンフォートゾーンの外に出てきた証拠かもしれません。今日から少しだけ、自分を休ませる時間を意図的につくってあげましょう。</p>',
+    breathConfig: {
+      name: 'ボックス呼吸法',
+      title: '🌬️ 今すぐできる 4-4-4-4 ボックス呼吸',
+      desc: '集中と落ち着きを同時に取り戻す、脳科学的にも有効な呼吸法です',
+      phases: [
+        { text: '鼻からゆっくり吸って…（4秒）', cls: 'inhale', label: '吸う', dur: 4000 },
+        { text: 'そのまま止めて…（4秒）', cls: 'hold', label: '止める', dur: 4000 },
+        { text: '口からゆっくり吐いて…（4秒）', cls: 'exhale', label: '吐く', dur: 4000 },
+        { text: '止めて…（4秒）', cls: 'hold', label: '止める', dur: 4000 },
+      ]
+    },
+    affirmations: [
+      '私は今日も、よく頑張っている',
+      '休むことは、前に進むための力になる',
+      '私には、自分を大切にする権利がある',
+      '疲れを感じることは、私が真剣に生きている証',
+      '今日の私は、昨日より少し賢くなっている',
+    ],
     advices: [
       { icon: '🌬️', title: 'ナディ・ショーダナ（交互呼吸法）', text: '左右の鼻を交互に使う呼吸法で、脳と神経系のバランスを整えます。1日5〜10分続けることで、エネルギーの流れが滑らかになります。', tag: 'tag-breath', tagText: '呼吸法' },
       { icon: '🧘', title: '数息観（すうそくかん）で今に戻る', text: '呼吸を数えるシンプルな瞑想。「1、2、3…10」と数えながら、散漫な思考を静め、今この瞬間に意識を戻します。', tag: 'tag-meditation', tagText: '瞑想' },
@@ -775,6 +934,24 @@ const RESULTS = [
     name: 'かなり心が疲れています',
     maxScore: 22,
     message: '<p>今のあなたは、長い間頑張りすぎているかもしれません。心と体が「もう少し休んで」と訴えています。</p><p>ラブマインドヨガでは、心と体は繋がっていると教えています。今感じているつらさは、あなたが弱いのではなく、たくさんのことを引き受けてきた証です。まず、深く息を吐いて。自分を責めなくていいんです。</p>',
+    breathConfig: {
+      name: '4-7-8 呼吸法',
+      title: '🌬️ 神経を深く鎮める 4-7-8 呼吸',
+      desc: '副交感神経を強く刺激し、不安・緊張をゆっくり手放します',
+      phases: [
+        { text: '鼻からゆっくり吸って…（4秒）', cls: 'inhale', label: '吸う', dur: 4000 },
+        { text: 'そのまま深く止めて…（7秒）', cls: 'hold', label: '止める', dur: 7000 },
+        { text: '口から全部ゆっくり吐いて…（8秒）', cls: 'exhale', label: '吐く', dur: 8000 },
+        { text: '次の呼吸まで…', cls: 'hold', label: '止める', dur: 1000 },
+      ]
+    },
+    affirmations: [
+      '私はそのままで、充分に価値がある',
+      '頑張ってきた自分を、今日は褒めてあげる',
+      '手放すことで、新しい何かが入ってくる',
+      '私は安全な場所にいる。ゆっくり息ができる',
+      '自分を責めなくていい。私はベストを尽くしてきた',
+    ],
     advices: [
       { icon: '💜', title: 'セルフチューニング〜自分に戻る〜', text: '手を胸に当て、自分の心拍を感じながら「私は安全、私は愛されている」と心の中で繰り返します。5分だけでも効果があります。', tag: 'tag-meditation', tagText: '瞑想' },
       { icon: '🎵', title: '声と振動でリリース', text: '「アー」「ウー」などの声を出すだけで、体の振動が心の緊張を解きほぐします。一人の空間で、思い切り声を出してみましょう。', tag: 'tag-body', tagText: '声・振動' },
@@ -787,6 +964,24 @@ const RESULTS = [
     name: '今すぐ心を休めてあげて',
     maxScore: 30,
     message: '<p>今のあなたの心は、かなり疲れています。それでもここを開いてくれた。それだけで充分です。</p><p>「コンフォートゾーン」の概念が教えてくれるように、強い不安や辛さは、変化の入り口のサインでもあります。今この苦しさの中にいるあなたに伝えたい。あなたは一人じゃない。あなたの存在には、ちゃんと価値があります。</p><p>今日は何もしなくていい。まずゆっくり息を吐いてください。</p>',
+    breathConfig: {
+      name: '丹田呼吸法',
+      title: '🌬️ ただ息をするだけでいい 丹田呼吸',
+      desc: 'おへその下に手を置いて、ただ呼吸するだけ。それだけで充分です',
+      phases: [
+        { text: 'おなかを膨らませながら、ゆっくり吸って…', cls: 'inhale', label: '吸う', dur: 4000 },
+        { text: '少し止めて…', cls: 'hold', label: '止める', dur: 2000 },
+        { text: 'おなかをへこませながら、ゆっくり吐いて…', cls: 'exhale', label: '吐く', dur: 8000 },
+        { text: 'そのまま自然に…', cls: 'hold', label: '自然に', dur: 2000 },
+      ]
+    },
+    affirmations: [
+      '今ここに存在しているだけで、充分すぎるほど素晴らしい',
+      '泣いていい。疲れていい。それも、私のすべて',
+      '私は愛される価値がある。今のままで',
+      'ゆっくりでいい。一歩ずつでいい',
+      'この苦しさは、永遠には続かない。必ず変わっていく',
+    ],
     advices: [
       { icon: '🌊', title: '丹田瞑想〜ただ息をする〜', text: 'おへその下（丹田）に手を置いて、ただ呼吸するだけ。考えなくていい。ただ今ここにいることを感じて。5分で充分です。', tag: 'tag-meditation', tagText: '瞑想' },
       { icon: '🤍', title: 'チェックイン瞑想', text: '「今、私はどんな状態にある？」と自分に問いかけるだけの瞑想。答えを出さなくていい。ただ感じることで、心が少し楽になります。', tag: 'tag-mind', tagText: 'マインド' },
@@ -797,13 +992,10 @@ const RESULTS = [
 
 let currentQ = 0, answers = [], selectedChoice = null;
 let breathRunning = false, breathTimer = null, bPhaseIdx = 0;
+let currentBreathPhases = [];
 
-const breathPhases = [
-  { text: '鼻から ゆっくり吸って…', cls: 'inhale', label: '吸う', dur: 4000 },
-  { text: 'そのまま息を止めて…', cls: 'hold', label: '止める', dur: 4000 },
-  { text: '鼻からゆっくり吐いて…', cls: 'exhale', label: '吐く', dur: 6000 },
-  { text: '少し止めて…', cls: 'hold', label: '止める', dur: 2000 },
-];
+// アファメーション
+let affirmationIdx = 0, affirmationList = [], affirmationAutoTimer = null, affirmationAutoOn = true;
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
@@ -889,6 +1081,14 @@ function renderResult(result, pct) {
   fill.style.width = '0%';
   setTimeout(() => { fill.style.width = pct + '%'; }, 150);
 
+  // 呼吸法セットアップ
+  const bc = result.breathConfig;
+  currentBreathPhases = bc.phases;
+  document.getElementById('r-breath-name').textContent = bc.name;
+  document.getElementById('r-breath-title').textContent = bc.title;
+  document.getElementById('r-breath-desc').textContent = bc.desc;
+
+  // アドバイスカード
   const adviceEl = document.getElementById('r-advice');
   adviceEl.innerHTML = '';
   result.advices.forEach(a => {
@@ -898,10 +1098,17 @@ function renderResult(result, pct) {
     adviceEl.appendChild(div);
   });
 
+  // アファメーション初期化
+  affirmationList = result.affirmations;
+  affirmationIdx = 0;
+  initAffirmations();
+
   stopBreath();
 }
 
 function retakeQuiz() {
+  clearInterval(affirmationAutoTimer);
+  stopBreath();
   currentQ = 0; answers = []; selectedChoice = null;
   renderQuestion();
   showScreen('screen-quiz');
@@ -925,14 +1132,14 @@ function startBreath() {
 
 function runBreathPhase() {
   if (!breathRunning) return;
-  const phase = breathPhases[bPhaseIdx];
+  const phase = currentBreathPhases[bPhaseIdx];
   const circle = document.getElementById('breath-circle');
   circle.className = 'breath-circle ' + phase.cls;
   circle.textContent = phase.label;
   document.getElementById('breath-instruction').textContent = phase.text;
   breathTimer = setTimeout(() => {
     if (!breathRunning) return;
-    bPhaseIdx = (bPhaseIdx + 1) % breathPhases.length;
+    bPhaseIdx = (bPhaseIdx + 1) % currentBreathPhases.length;
     runBreathPhase();
   }, phase.dur);
 }
@@ -945,6 +1152,82 @@ function stopBreath() {
   circle.textContent = '始める';
   document.getElementById('breath-instruction').textContent = '円をタップして深呼吸を始めましょう';
   document.getElementById('breath-btn').textContent = '▶ 呼吸を始める';
+}
+
+// ===== アファメーションカルーセル =====
+function initAffirmations() {
+  clearInterval(affirmationAutoTimer);
+  affirmationAutoOn = true;
+  document.getElementById('affirmation-auto-btn').classList.add('active');
+  document.getElementById('affirmation-auto-btn').textContent = '自動';
+
+  renderAffirmationDots();
+  showAffirmation(0, false);
+  startAffirmationAuto();
+}
+
+function renderAffirmationDots() {
+  const dotsEl = document.getElementById('affirmation-dots');
+  dotsEl.innerHTML = '';
+  affirmationList.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'affirmation-dot' + (i === affirmationIdx ? ' active' : '');
+    dot.onclick = () => { stopAffirmationAuto(); showAffirmation(i, true); };
+    dotsEl.appendChild(dot);
+  });
+}
+
+function showAffirmation(idx, animate) {
+  affirmationIdx = idx;
+  const el = document.getElementById('affirmation-text');
+
+  if (animate) {
+    el.classList.add('fade-out');
+    setTimeout(() => {
+      el.textContent = affirmationList[affirmationIdx];
+      el.classList.remove('fade-out');
+    }, 300);
+  } else {
+    el.textContent = affirmationList[affirmationIdx];
+  }
+
+  document.querySelectorAll('.affirmation-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === affirmationIdx);
+  });
+}
+
+function affirmationNext() {
+  stopAffirmationAuto();
+  showAffirmation((affirmationIdx + 1) % affirmationList.length, true);
+}
+
+function affirmationPrev() {
+  stopAffirmationAuto();
+  showAffirmation((affirmationIdx - 1 + affirmationList.length) % affirmationList.length, true);
+}
+
+function startAffirmationAuto() {
+  affirmationAutoTimer = setInterval(() => {
+    showAffirmation((affirmationIdx + 1) % affirmationList.length, true);
+  }, 5000);
+}
+
+function stopAffirmationAuto() {
+  clearInterval(affirmationAutoTimer);
+  affirmationAutoOn = false;
+  const btn = document.getElementById('affirmation-auto-btn');
+  btn.classList.remove('active');
+  btn.textContent = '自動';
+}
+
+function toggleAffirmationAuto() {
+  if (affirmationAutoOn) {
+    stopAffirmationAuto();
+  } else {
+    affirmationAutoOn = true;
+    document.getElementById('affirmation-auto-btn').classList.add('active');
+    startAffirmationAuto();
+  }
 }
 </script>
 </body>
