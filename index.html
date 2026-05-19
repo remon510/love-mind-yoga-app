@@ -617,6 +617,49 @@
     .level-very-high .result-level-name { color: #9848c8; }
     .level-very-high .result-score-fill { background: linear-gradient(90deg, #c498d4, #9848c8); }
 
+    /* LINE誘導 */
+    .line-cta {
+      background: linear-gradient(135deg, #e8f5e8 0%, #d5edd5 100%);
+      border: 1px solid rgba(0, 185, 0, 0.18);
+      border-radius: 20px;
+      padding: 22px 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .line-cta-text {
+      font-size: 13px;
+      color: #4a7a4a;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    .line-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #06C755;
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      padding: 13px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      letter-spacing: 0.04em;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(6, 199, 85, 0.35);
+      margin-bottom: 10px;
+    }
+    .line-cta-btn:hover {
+      background: #05b34c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(6, 199, 85, 0.45);
+    }
+    .line-cta-sub {
+      font-size: 11.5px;
+      color: #6a8a6a;
+      line-height: 1.6;
+    }
+
     .footer-note {
       text-align: center;
       font-size: 11.5px;
@@ -713,7 +756,6 @@
     <div class="result-message" id="r-message"></div>
 
     <div class="breath-guide">
-      <div class="breath-name" id="r-breath-name"></div>
       <div class="breath-title" id="r-breath-title"></div>
       <div class="breath-desc" id="r-breath-desc"></div>
       <div class="breath-circle-wrap">
@@ -738,6 +780,15 @@
 
     <div class="advice-section-title">おすすめの実践法</div>
     <div class="advice-cards" id="r-advice"></div>
+
+    <div class="line-cta">
+      <div class="line-cta-text">もっと深く、心を整えたい方へ</div>
+      <a class="line-cta-btn" href="https://line.me/R/ti/p/@255knvri?oat_content=url&ts=08021132" target="_blank" rel="noopener">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.19 1.7 6.02 4.32 7.78-.18.64-.66 2.33-.76 2.69-.12.44.16.43.34.31.14-.09 2.22-1.47 3.12-2.07.64.09 1.3.14 1.98.14 5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+        LINE公式アカウントで相談する
+      </a>
+      <div class="line-cta-sub">ラブマインドヨガの講師に直接つながれます</div>
+    </div>
 
     <button class="btn btn-primary" onclick="retakeQuiz()" style="margin-bottom:12px;">もう一度チェックする</button>
     <button class="btn btn-secondary" onclick="shareResult()">結果をコピーする 📋</button>
@@ -1084,7 +1135,6 @@ function renderResult(result, pct) {
   // 呼吸法セットアップ
   const bc = result.breathConfig;
   currentBreathPhases = bc.phases;
-  document.getElementById('r-breath-name').textContent = bc.name;
   document.getElementById('r-breath-title').textContent = bc.title;
   document.getElementById('r-breath-desc').textContent = bc.desc;
 
