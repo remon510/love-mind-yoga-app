@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自律神経セルフチェック</title>
+<style>
+  :root {
+    --teal: #2a9d8f;
+    --teal-light: #52b8ac;
+    --teal-pale: #e8f7f5;
+    --navy: #264653;
+    --orange: #e9c46a;
+    --coral: #f4a261;
+    --red-soft: #e76f51;
+    --gray-text: #4a4a4a;
+    --gray-light: #f8f8f8;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: linear-gradient(135deg, #e8f7f5 0%, #f0f9ff 50%, #fef9f0 100%);
+    min-height: 100vh;
+    color: var(--gray-text);
+    line-height: 1.7;
+  }
+
+  /* ヘッダー */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+    color: white;
+    text-align: center;
+    padding: 40px 20px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+    letter-spacing: 0.1em;
+  }
+  .header h1 {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .header p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .header-wave {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%;
+    height: 40px;
+  }
+
+  /* メインコンテナ */
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
+  }
+
+  /* 注意書き */
+  .disclaimer-card {
+    background: #fff8e1;
+    border-left: 4px solid var(--orange);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: -20px 0 24px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .disclaimer-card p {
+    font-size: 0.82rem;
+    color: #5a4a00;
+    line-height: 1.6;
+  }
+  .disclaimer-card strong { color: #c77700; }
+
+  /* セクションカード */
+  .section-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .section-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: default;
+  }
+  .section-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .section-subtitle {
+    font-size: 0.78rem;
+    color: #888;
+    margin-top: 2px;
+  }
+  .section-body { padding: 4px 20px 16px; }
+
+  /* チェックボックス */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .check-item:hover { background: var(--teal-pale); }
+  .check-item input[type="checkbox"] { display: none; }
+  .custom-check {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: white;
+  }
+  .check-item input:checked ~ .custom-check {
+    background: var(--teal);
+    border-color: var(--teal);
+  }
+  .custom-check::after {
+    content: '✓';
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .check-item input:checked ~ .custom-check::after { opacity: 1; }
+  .check-label { font-size: 0.9rem; color: var(--gray-text); line-height: 1.5; }
+  .check-item input:checked ~ .check-label { color: var(--teal); font-weight: 600; }
+
+  /* カウンター */
+  .score-counter {
+    background: linear-gradient(135deg, var(--teal-pale), #f0f9ff);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .score-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--teal);
+    line-height: 1;
+  }
+  .score-label { font-size: 0.85rem; color: #666; margin-top: 4px; }
+  .score-max { font-size: 0.9rem; color: #999; }
+
+  /* 判定ボタン */
+  .btn-check {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 16px rgba(42,157,143,0.4);
+    transition: all 0.2s;
+  }
+  .btn-check:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(42,157,143,0.5); }
+  .btn-check:active { transform: translateY(0); }
+
+  /* 結果表示 */
+  #result { display: none; }
+  .result-card {
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .level-0 { background: #f0fff4; }
+  .level-0::before { background: linear-gradient(90deg, #52b788, #74c69d); }
+  .level-1 { background: #fffbf0; }
+  .level-1::before { background: linear-gradient(90deg, #e9c46a, #f4a261); }
+  .level-2 { background: #fff5f0; }
+  .level-2::before { background: linear-gradient(90deg, #f4a261, #e76f51); }
+  .level-3 { background: #fff0f0; }
+  .level-3::before { background: linear-gradient(90deg, #e76f51, #d62839); }
+
+  .result-score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border-radius: 50px;
+    padding: 8px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .result-score-num { font-size: 1.8rem; font-weight: 800; }
+  .result-score-text { font-size: 0.85rem; color: #666; }
+  .result-title { font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+  .result-description { font-size: 0.9rem; line-height: 1.7; color: #444; }
+
+  /* カテゴリ別バー */
+  .category-bars { margin: 20px 0; }
+  .cat-bar-row { margin-bottom: 12px; }
+  .cat-bar-label { font-size: 0.82rem; color: #555; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .cat-bar-track {
+    height: 10px;
+    background: #eee;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .cat-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.8s ease;
+  }
+
+  /* アドバイスセクション */
+  .advice-section { margin-top: 24px; }
+  .advice-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .advice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:480px){ .advice-grid { grid-template-columns: 1fr; } }
+
+  .advice-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border-top: 3px solid var(--teal);
+  }
+  .advice-card-icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .advice-card-title { font-size: 0.88rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+  .advice-card-body { font-size: 0.8rem; color: #555; line-height: 1.6; }
+
+  /* 食べ物セクション */
+  .food-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 24px 20px;
+    margin-bottom: 20px;
+  }
+  .food-section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--teal-pale);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .food-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:480px){ .food-cols { grid-template-columns: 1fr; } }
+
+  .food-col-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .food-good .food-col-title { background: #e8f5e9; color: #2e7d32; }
+  .food-bad .food-col-title { background: #fce4ec; color: #c62828; }
+
+  .food-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .food-item:last-child { border-bottom: none; }
+  .food-dot { flex-shrink: 0; font-size: 0.75rem; margin-top: 3px; }
+
+  /* エビデンスセクション */
+  .evidence-section {
+    background: linear-gradient(135deg, var(--navy) 0%, #1a3a4a 100%);
+    border-radius: 16px;
+    padding: 24px 20px;
+    margin-bottom: 20px;
+    color: white;
+  }
+  .evidence-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .evidence-item {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--teal-light);
+  }
+  .evidence-item-title { font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; color: #a8dfda; }
+  .evidence-item-body { font-size: 0.78rem; color: rgba(255,255,255,0.75); line-height: 1.6; }
+
+  /* 60代特別セクション */
+  .sixty-plus-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 24px 20px;
+    margin-bottom: 20px;
+    color: white;
+    display: none;
+  }
+  .sixty-plus-section.show { display: block; }
+  .sixty-plus-title { font-size: 1rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .sixty-plus-point {
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+  .sixty-plus-point strong { color: #ffd700; }
+
+  /* 最終注意書き */
+  .final-disclaimer {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 24px;
+    font-size: 0.78rem;
+    color: #666;
+    line-height: 1.7;
+  }
+  .final-disclaimer strong { color: #333; }
+
+  /* リセットボタン */
+  .btn-reset {
+    display: block;
+    width: 100%;
+    background: #f0f0f0;
+    color: #555;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background 0.2s;
+  }
+  .btn-reset:hover { background: #e0e0e0; }
+
+  /* プログレスバー（チェック中） */
+  .progress-bar {
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    margin: 12px 0 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--teal-light));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  .progress-text { font-size: 0.78rem; color: #888; text-align: right; }
+
+  /* フッター */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 0.75rem;
+    color: #aaa;
+  }
+
+  /* アニメーション */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in { animation: fadeInUp 0.5s ease forwards; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">自律神経 自己分析シート</div>
+  <h1>自律神経セルフチェック</h1>
+  <p>症状が出る前に軌道修正するための<br>自己分析シート（20項目）</p>
+  <svg class="header-wave" viewBox="0 0 1440 40" preserveAspectRatio="none">
+    <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" fill="#e8f7f5" opacity="0.5"/>
+    <path d="M0,30 C480,10 960,40 1440,30 L1440,40 L0,40 Z" fill="#f0f9ff" opacity="0.6"/>
+  </svg>
+</div>
+
+<div class="container">
+
+  <!-- 免責・注意書き -->
+  <div class="disclaimer-card">
+    <p>
+      <strong>【重要なお知らせ】</strong> このチェックシートは、健康状態の自己把握を目的とした参考ツールです。<strong>医療診断・治療行為ではありません。</strong>
+      症状が続く場合や気になることがある場合は、必ず<strong>医師・医療機関にご相談ください。</strong>
+    </p>
+  </div>
+
+  <!-- チェックフォーム -->
+  <div id="checkForm">
+
+    <!-- 身体症状 -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon" style="background:#e8f7f5;">🏃</div>
+        <div>
+          <div class="section-title">身体症状</div>
+          <div class="section-subtitle">ここ3ヶ月で週2回以上経験しているもの</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="body"><span class="custom-check"></span><span class="check-label">朝起きるのがつらい・起き上がれない</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="body"><span class="custom-check"></span><span class="check-label">日中に強い眠気が来る</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="body"><span class="custom-check"></span><span class="check-label">疲れが翌日まで残る・慢性的な疲労感がある</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="body"><span class="custom-check"></span><span class="check-label">手足が冷える</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="body"><span class="custom-check"></span><span class="check-label">頭痛・頭の重さがある</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="body"><span class="custom-check"></span><span class="check-label">肩・首のこりが強い</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="body"><span class="custom-check"></span><span class="check-label">動悸・胸の違和感がある</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="body"><span class="custom-check"></span><span class="check-label">めまい・立ちくらみがある</span></label>
+      </div>
+    </div>
+
+    <!-- 消化器症状 -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon" style="background:#fff8e1;">🌿</div>
+        <div>
+          <div class="section-title">消化器症状</div>
+          <div class="section-subtitle">腸は第二の脳・自律神経と深い関係があります</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="gut"><span class="custom-check"></span><span class="check-label">便秘か下痢、またはその繰り返しがある</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="gut"><span class="custom-check"></span><span class="check-label">食後に腹部の膨満感・不快感がある</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="gut"><span class="custom-check"></span><span class="check-label">食欲にムラがある</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="gut"><span class="custom-check"></span><span class="check-label">胃の不快感・胸やけがある</span></label>
+      </div>
+    </div>
+
+    <!-- 睡眠症状 -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon" style="background:#f0f4ff;">🌙</div>
+        <div>
+          <div class="section-title">睡眠症状</div>
+          <div class="section-subtitle">副交感神経の働きが睡眠の質を左右します</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="sleep"><span class="custom-check"></span><span class="check-label">寝つきが悪い（30分以上かかる）</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="sleep"><span class="custom-check"></span><span class="check-label">夜中に目が覚める</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="sleep"><span class="custom-check"></span><span class="check-label">夢が多い・眠りが浅い感じがする</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="sleep"><span class="custom-check"></span><span class="check-label">起きても休んだ気がしない</span></label>
+      </div>
+    </div>
+
+    <!-- メンタル症状 -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon" style="background:#fce4ec;">🧠</div>
+        <div>
+          <div class="section-title">メンタル症状</div>
+          <div class="section-subtitle">自律神経の乱れは心の状態にも影響します</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="mental"><span class="custom-check"></span><span class="check-label">気分の波が大きい・感情が不安定</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="mental"><span class="custom-check"></span><span class="check-label">不安感・緊張感が抜けない</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="mental"><span class="custom-check"></span><span class="check-label">集中力・記憶力の低下を感じる</span></label>
+        <label class="check-item"><input type="checkbox" class="chk" data-cat="mental"><span class="custom-check"></span><span class="check-label">以前楽しめていたことへの意欲が低下している</span></label>
+      </div>
+    </div>
+
+    <!-- スコア & ボタン -->
+    <div class="section-card">
+      <div style="padding: 20px;">
+        <div class="score-counter">
+          <div class="score-number" id="currentScore">0</div>
+          <div class="score-label">チェックした項目数</div>
+          <div class="score-max">/ 20項目</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="progress-text" id="progressText">0 / 20項目チェック済み</div>
+        <button class="btn-check" onclick="showResult()">判定する →</button>
+      </div>
+    </div>
+
+  </div><!-- /checkForm -->
+
+  <!-- 結果エリア -->
+  <div id="result">
+
+    <!-- スコア結果カード -->
+    <div id="resultCard" class="result-card animate-in">
+      <div class="result-score-badge">
+        <span class="result-score-num" id="resultNum" style="color:var(--teal)">0</span>
+        <span class="result-score-text">/ 20点</span>
+      </div>
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-description" id="resultDesc"></div>
+
+      <!-- カテゴリ別バー -->
+      <div class="category-bars" style="margin-top:20px;">
+        <div style="font-size:0.85rem;font-weight:700;color:var(--navy);margin-bottom:12px;">カテゴリ別チェック状況</div>
+        <div class="cat-bar-row">
+          <div class="cat-bar-label"><span>🏃 身体症状</span><span id="bodyScore">0/8</span></div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" id="bodyBar" style="width:0%;background:linear-gradient(90deg,#52b788,#74c69d)"></div></div>
+        </div>
+        <div class="cat-bar-row">
+          <div class="cat-bar-label"><span>🌿 消化器症状</span><span id="gutScore">0/4</span></div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" id="gutBar" style="width:0%;background:linear-gradient(90deg,#e9c46a,#f4a261)"></div></div>
+        </div>
+        <div class="cat-bar-row">
+          <div class="cat-bar-label"><span>🌙 睡眠症状</span><span id="sleepScore">0/4</span></div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" id="sleepBar" style="width:0%;background:linear-gradient(90deg,#667eea,#764ba2)"></div></div>
+        </div>
+        <div class="cat-bar-row">
+          <div class="cat-bar-label"><span>🧠 メンタル症状</span><span id="mentalScore">0/4</span></div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" id="mentalBar" style="width:0%;background:linear-gradient(90deg,#f4a261,#e76f51)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- アドバイスセクション -->
+    <div class="advice-section animate-in" id="adviceSection">
+      <div class="advice-title">💡 あなたへのセルフケアのヒント</div>
+      <div class="advice-grid" id="adviceGrid"></div>
+    </div>
+
+    <!-- 食事ガイド -->
+    <div class="food-section animate-in" style="margin-top:20px;">
+      <div class="food-section-title">🍽️ 自律神経と食事の関係</div>
+      <div class="food-cols">
+        <div class="food-good">
+          <div class="food-col-title">✅ 積極的にとりたい食品</div>
+          <div class="food-item"><span class="food-dot">🫐</span><span><strong>発酵食品</strong><br>納豆・ヨーグルト・味噌・ぬか漬け。腸内フローラを整え、腸−脳軸を通じて自律神経をサポート。</span></div>
+          <div class="food-item"><span class="food-dot">🐟</span><span><strong>青魚（DHA・EPA）</strong><br>サバ・イワシ・サーモン。炎症を抑え、副交感神経の機能維持に関わるオメガ3脂肪酸を含む。</span></div>
+          <div class="food-item"><span class="food-dot">🥦</span><span><strong>食物繊維が豊富な野菜</strong><br>ごぼう・ブロッコリー・海藻類。腸内の善玉菌のエサとなり、セロトニン産生を助ける。</span></div>
+          <div class="food-item"><span class="food-dot">🌰</span><span><strong>マグネシウム食品</strong><br>ナッツ類・豆腐・ほうれん草。神経の興奮を抑制し、副交感神経の働きをサポート。</span></div>
+          <div class="food-item"><span class="food-dot">🫖</span><span><strong>ハーブティー</strong><br>カモミール・レモンバーム。リラックス効果があり、就寝前の副交感神経の切り替えに有用。</span></div>
+        </div>
+        <div class="food-bad">
+          <div class="food-col-title">⚠️ 控えたい食品・習慣</div>
+          <div class="food-item"><span class="food-dot">☕</span><span><strong>過剰なカフェイン</strong><br>コーヒー・エナジードリンクの飲みすぎは交感神経を過剰に刺激し、睡眠の質を低下させる。</span></div>
+          <div class="food-item"><span class="food-dot">🍬</span><span><strong>精製糖・超加工食品</strong><br>血糖値の急激な変動が自律神経を揺さぶる。白砂糖・スナック菓子・清涼飲料水は要注意。</span></div>
+          <div class="food-item"><span class="food-dot">🍺</span><span><strong>アルコール</strong><br>一時的にリラックスに感じても、睡眠の後半に交感神経を活性化させ、睡眠の質を下げる。</span></div>
+          <div class="food-item"><span class="food-dot">🍟</span><span><strong>トランス脂肪酸</strong><br>マーガリン・ファストフード・市販の菓子パン。神経の炎症を高める可能性が指摘されている。</span></div>
+          <div class="food-item"><span class="food-dot">🧂</span><span><strong>高塩分食品</strong><br>過剰な塩分は交感神経を活性化し、血圧変動を引き起こす。加工食品の塩分に特に注意。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 60代特別メッセージ -->
+    <div class="sixty-plus-section" id="sixtyPlusSection">
+      <div class="sixty-plus-title">🌟 60代以降の方へ：特別なメッセージ</div>
+      <div class="sixty-plus-point">
+        <strong>「もう遅い」は科学的に間違っています。</strong><br>
+        2018年のコロンビア大学の研究では、79歳の脳でも新しい神経細胞が生まれていることが確認されています（Boldrini et al., Cell Stem Cell, 2018）。
+      </div>
+      <div class="sixty-plus-point">
+        <strong>副交感神経は70〜80代で底打ちし、その後回復します。</strong><br>
+        イリノイ大学シカゴ校の研究（2010年）では、長生きしている方の副交感神経機能が80代以降に回復傾向を見せることが示されています。
+      </div>
+      <div class="sixty-plus-point">
+        <strong>60代の神経の特性：「変化は遅いが、深く根付く」</strong><br>
+        成熟した神経は長期増強により、一度変化すると安定して定着しやすい特性があります。3週間ではなく、3ヶ月を目安に続けることが重要です。
+      </div>
+      <div class="sixty-plus-point">
+        <strong>今すぐ始められる3つのアプローチ</strong><br>
+        ①腸内環境を整える（発酵食品・食物繊維） ②週3〜5回の軽い有酸素運動 ③社会的なつながり・スキンシップを意識的に増やす
+      </div>
+    </div>
+
+    <!-- エビデンス情報 -->
+    <div class="evidence-section animate-in">
+      <div class="evidence-title">📚 科学的な根拠について</div>
+      <div class="evidence-item">
+        <div class="evidence-item-title">腸−脳軸（Gut-Brain Axis）</div>
+        <div class="evidence-item-body">腸と脳は迷走神経を通じて双方向に連絡しています。腸内細菌はセロトニンの約90%を産生し、自律神経の働きに深く関わっています。腸内環境の乱れが自律神経の乱れと関連することが複数の研究で示されています。</div>
+      </div>
+      <div class="evidence-item">
+        <div class="evidence-item-title">HRV（心拍変動）と副交感神経</div>
+        <div class="evidence-item-body">心拍変動（HRV）は自律神経機能の客観的指標です。週3〜5回の有酸素運動を継続した群でHRVの副交感神経指標が有意に改善したことが複数のデータで示されています（2021年のメタアナリシスより）。</div>
+      </div>
+      <div class="evidence-item">
+        <div class="evidence-item-title">横隔膜呼吸（腹式呼吸）の効果</div>
+        <div class="evidence-item-body">意識的にゆっくりとした腹式呼吸（4秒吸って8秒かけて吐く）を行うことで、迷走神経を刺激し副交感神経を活性化させる効果が研究で確認されています。</div>
+      </div>
+      <div class="evidence-item">
+        <div class="evidence-item-title">睡眠と自律神経の回復</div>
+        <div class="evidence-item-body">質の良い睡眠は副交感神経の回復に不可欠です。就寝90分前の入浴（38〜40℃）、寝室の暗さと静けさ、スマートフォンのブルーライトを避けることで睡眠の質が向上することが示されています。</div>
+      </div>
+    </div>
+
+    <!-- 最終注意書き -->
+    <div class="final-disclaimer">
+      <strong>【ご利用上の注意】</strong><br>
+      このセルフチェックは、日常の健康管理の参考として使用するものであり、<strong>医療診断・医学的判断・治療行為に代わるものではありません。</strong><br><br>
+      動悸・めまい・強い胸の違和感など、気になる症状がある場合や症状が続く場合は、<strong>必ず医師・医療機関にご相談ください。</strong><br><br>
+      このツールで紹介している食品・生活習慣の情報は、一般的な健康維持・セルフケアに関する参考情報です。特定の疾患の治療・予防を目的とするものではありません。薬を服用中の方、持病のある方は、生活習慣を変える際に医師にご相談ください。
+    </div>
+
+    <button class="btn-reset" onclick="resetForm()">🔄 もう一度チェックする</button>
+
+  </div><!-- /result -->
+
+</div>
+
+<div class="footer">
+  &copy; 2025 このツールは医療行為ではありません
+</div>
+
+<script>
+const LEVELS = [
+  {
+    min: 0, max: 4,
+    cls: 'level-0',
+    color: '#2e7d32',
+    emoji: '🟢',
+    title: '自律神経への負荷は比較的軽め',
+    desc: '現時点では自律神経への慢性的な負荷は少ない状態です。予防的なアプローチを継続することで、将来的な不調を未然に防ぐことができます。日々の生活習慣を見直し、質の良い睡眠・適度な運動・バランスの取れた食事を心がけましょう。',
+    advices: [
+      { icon:'🧘', title:'日々の呼吸を意識する', body:'腹式呼吸を1日5分行うだけで、副交感神経の活性化につながります。ヨガや瞑想と組み合わせると効果的です。' },
+      { icon:'🌿', title:'腸活を始めよう', body:'毎日の食事に発酵食品（ヨーグルト・納豆・味噌）をプラス。腸内環境を整えることが自律神経の土台になります。' },
+      { icon:'🚶', title:'毎日20分の散歩', body:'軽い有酸素運動は迷走神経を刺激し、副交感神経の維持に有効です。朝の光を浴びながら歩くとより効果的。' },
+      { icon:'😴', title:'睡眠リズムを整える', body:'毎日同じ時間に起床・就寝することで自律神経のリズムが安定します。就寝1時間前はスマホを控えましょう。' },
+    ]
+  },
+  {
+    min: 5, max: 9,
+    cls: 'level-1',
+    color: '#c77700',
+    emoji: '🟡',
+    title: '自律神経への慢性的な負荷あり',
+    desc: '自律神経に一定の疲れが蓄積している可能性があります。交感神経が優位な時間が長くなっており、副交感神経への切り替えがうまくいっていないサインかもしれません。今すぐ生活習慣を見直すことで、症状の改善が期待できます。',
+    advices: [
+      { icon:'🌬️', title:'4-7-8呼吸法を試す', body:'4秒吸って、7秒止めて、8秒かけてゆっくり吐く。副交感神経を直接刺激する即効性の高い呼吸法です。就寝前が特に効果的。' },
+      { icon:'🛁', title:'入浴で体を温める', body:'38〜40℃のぬるめのお湯に15〜20分浸かる。就寝90分前の入浴が深部体温の低下を促し、睡眠の質を高めます。' },
+      { icon:'🍽️', title:'食事のリズムを整える', body:'血糖値の急激な変動が自律神経を乱します。3食同じ時間に、よく噛んで食べることを意識しましょう。糖質の質にも注目。' },
+      { icon:'📵', title:'デジタルデトックス', body:'就寝1〜2時間前はスマホ・PCをオフに。ブルーライトはメラトニン分泌を抑制し、交感神経を夜まで活性化させます。' },
+    ]
+  },
+  {
+    min: 10, max: 14,
+    cls: 'level-2',
+    color: '#e65100',
+    emoji: '🟠',
+    title: '自律神経の疲弊が進んでいる可能性',
+    desc: '自律神経に相当な慢性疲弊が生じている可能性があります。腸と神経への集中的なアプローチが重要です。症状が日常生活に影響している場合は、専門家への相談も検討してください。一人で抱え込まず、適切なサポートを受けることが回復への近道です。',
+    advices: [
+      { icon:'🏥', title:'医師への相談を検討', body:'10項目以上の症状が続く場合は、自律神経失調症・甲状腺機能低下・貧血など医学的要因の除外が重要です。かかりつけ医への相談をお勧めします。' },
+      { icon:'🦠', title:'腸内環境を最優先に', body:'腸は「第二の脳」。腸内フローラの乱れが神経系に影響します。発酵食品＋食物繊維を意識し、超加工食品・アルコールを控えましょう。' },
+      { icon:'🧘‍♀️', title:'ヨガ・ストレッチを習慣に', body:'迷走神経を刺激するポーズ（前屈・ツイスト）は副交感神経の回復に有効です。週3回以上、10〜20分の実践が目安です。' },
+      { icon:'🤝', title:'社会的つながりを意識', body:'孤独は副交感神経機能を直接低下させます。オキシトシン（つながりホルモン）の分泌を促すスキンシップや会話を意識的に増やしましょう。' },
+    ]
+  },
+  {
+    min: 15, max: 20,
+    cls: 'level-3',
+    color: '#c62828',
+    emoji: '🔴',
+    title: '自律神経の総出力が著しく低下している可能性',
+    desc: '多くの症状が重なっており、自律神経全体の機能が大きく低下している可能性があります。根本的なアプローチが必要な状態かもしれません。まず医師に相談し、医学的な原因を確認することを強くお勧めします。生活習慣の改善は医療と並行して行いましょう。',
+    advices: [
+      { icon:'🏥', title:'まず医師に相談を', body:'15項目以上の症状が重なる場合、器質的疾患（甲状腺・貧血・うつ病等）が背景にある可能性があります。必ず医療機関を受診してください。' },
+      { icon:'😴', title:'休息を最優先に', body:'まずは十分な休息が回復の第一歩です。「頑張ること」より「回復させること」を優先してください。睡眠時間の確保を最重要課題に。' },
+      { icon:'🌱', title:'小さな一歩から始める', body:'完璧を目指さず、今日できることだけ実践。腹式呼吸1分・散歩5分・発酵食品1品。継続できる最小サイズから始めましょう。' },
+      { icon:'💬', title:'一人で抱え込まない', body:'自律神経の疲弊は「心の弱さ」ではなく、神経系の疲労です。信頼できる人に話す・専門家に相談することが回復を早めます。' },
+    ]
+  },
+];
+
+let catCount = { body: 0, gut: 0, sleep: 0, mental: 0 };
+let totalScore = 0;
+
+document.querySelectorAll('.chk').forEach(cb => {
+  cb.addEventListener('change', updateScore);
+});
+
+function updateScore() {
+  catCount = { body: 0, gut: 0, sleep: 0, mental: 0 };
+  document.querySelectorAll('.chk:checked').forEach(cb => {
+    catCount[cb.dataset.cat]++;
+  });
+  totalScore = Object.values(catCount).reduce((a,b) => a+b, 0);
+  document.getElementById('currentScore').textContent = totalScore;
+  const pct = (totalScore / 20 * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = totalScore + ' / 20項目チェック済み';
+}
+
+function showResult() {
+  const level = LEVELS.find(l => totalScore >= l.min && totalScore <= l.max);
+
+  // スコア更新
+  document.getElementById('resultNum').textContent = totalScore;
+  document.getElementById('resultNum').style.color = level.color;
+
+  // カードクラス
+  const rc = document.getElementById('resultCard');
+  rc.className = 'result-card animate-in ' + level.cls;
+
+  document.getElementById('resultTitle').textContent = level.emoji + ' ' + level.title;
+  document.getElementById('resultDesc').textContent = level.desc;
+
+  // カテゴリバー
+  const bodyPct = (catCount.body / 8 * 100).toFixed(0);
+  const gutPct = (catCount.gut / 4 * 100).toFixed(0);
+  const sleepPct = (catCount.sleep / 4 * 100).toFixed(0);
+  const mentalPct = (catCount.mental / 4 * 100).toFixed(0);
+
+  setTimeout(() => {
+    document.getElementById('bodyBar').style.width = bodyPct + '%';
+    document.getElementById('gutBar').style.width = gutPct + '%';
+    document.getElementById('sleepBar').style.width = sleepPct + '%';
+    document.getElementById('mentalBar').style.width = mentalPct + '%';
+  }, 100);
+
+  document.getElementById('bodyScore').textContent = catCount.body + '/8';
+  document.getElementById('gutScore').textContent = catCount.gut + '/4';
+  document.getElementById('sleepScore').textContent = catCount.sleep + '/4';
+  document.getElementById('mentalScore').textContent = catCount.mental + '/4';
+
+  // アドバイス
+  const grid = document.getElementById('adviceGrid');
+  grid.innerHTML = level.advices.map(a => `
+    <div class="advice-card">
+      <div class="advice-card-icon">${a.icon}</div>
+      <div class="advice-card-title">${a.title}</div>
+      <div class="advice-card-body">${a.body}</div>
+    </div>
+  `).join('');
+
+  // 60代セクション表示（スコアが5以上）
+  const sixtySection = document.getElementById('sixtyPlusSection');
+  if (totalScore >= 5) {
+    sixtySection.classList.add('show');
+  } else {
+    sixtySection.classList.remove('show');
+  }
+
+  // 表示切替
+  document.getElementById('checkForm').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  document.querySelectorAll('.chk').forEach(cb => cb.checked = false);
+  catCount = { body: 0, gut: 0, sleep: 0, mental: 0 };
+  totalScore = 0;
+  document.getElementById('currentScore').textContent = '0';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressText').textContent = '0 / 20項目チェック済み';
+  document.getElementById('checkForm').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
