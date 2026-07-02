@@ -7,6 +7,7 @@
 <style>
   :root {
     --green: #2d6a4f;
+    --green-mid: #40916c;
     --green-light: #52b788;
     --green-pale: #d8f3dc;
     --orange: #f4a261;
@@ -33,20 +34,33 @@
     background: linear-gradient(135deg, var(--navy) 0%, var(--green) 100%);
     color: white;
     text-align: center;
-    padding: 36px 20px 52px;
+    padding: 36px 20px 56px;
     position: relative;
     overflow: hidden;
   }
+  .header::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 70% 50%, rgba(255,255,255,0.05) 0%, transparent 60%);
+  }
   .header::after {
     content: '';
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 36px;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,18 C360,36 1080,0 1440,18 L1440,36 L0,36 Z' fill='%23f0faf4'/%3E%3C/svg%3E") no-repeat bottom/cover;
+    position: absolute; bottom: 0; left: 0;
+    width: 100%; height: 32px;
+    background: linear-gradient(160deg, #e8f5e9 0%, #f0faf4 100%);
+    clip-path: ellipse(55% 100% at 50% 100%);
   }
-  .header-icon { font-size: 2.8rem; margin-bottom: 10px; }
-  .header h1 { font-size: clamp(1.5rem,5vw,2.2rem); font-weight: 800; margin-bottom: 8px; }
-  .header p { font-size: 0.9rem; opacity: 0.85; max-width: 480px; margin: 0 auto; }
+  .header-icon { font-size: 2.8rem; margin-bottom: 10px; position: relative; z-index: 1; }
+  .header h1 {
+    font-size: clamp(1.5rem,5vw,2.2rem);
+    font-weight: 800; margin-bottom: 8px;
+    position: relative; z-index: 1;
+  }
+  .header p {
+    font-size: 0.88rem; opacity: 0.85;
+    max-width: 460px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
 
   /* コンテナ */
   .container { max-width: 700px; margin: 0 auto; padding: 0 16px 60px; }
@@ -57,16 +71,15 @@
     border-left: 4px solid var(--yellow);
     border-radius: 0 10px 10px 0;
     padding: 14px 18px;
-    margin: -16px 0 24px;
-    position: relative; z-index: 1;
+    margin: 8px 0 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #5a4700;
-    line-height: 1.6;
+    line-height: 1.65;
   }
   .disclaimer strong { color: #c77700; }
 
-  /* カード共通 */
+  /* カード */
   .card {
     background: white;
     border-radius: 18px;
@@ -74,253 +87,225 @@
     margin-bottom: 20px;
     overflow: hidden;
   }
-  .card-body { padding: 24px 20px; }
-
-  /* アップロードエリア */
-  .upload-area {
-    border: 2px dashed #b7dfc8;
-    border-radius: 14px;
-    padding: 36px 20px;
-    text-align: center;
-    background: var(--green-pale);
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
+  .card-head {
+    padding: 16px 20px 0;
+    display: flex; align-items: center; gap: 10px;
   }
-  .upload-area:hover, .upload-area.drag-over {
-    border-color: var(--green-light);
-    background: #c8f0d8;
-  }
-  .upload-icon { font-size: 3rem; margin-bottom: 12px; }
-  .upload-title { font-size: 1.05rem; font-weight: 700; color: var(--green); margin-bottom: 6px; }
-  .upload-subtitle { font-size: 0.82rem; color: #666; }
-  #fileInput { display: none; }
-
-  /* カメラボタン群 */
-  .btn-group { display: flex; gap: 10px; margin-top: 16px; }
-  .btn {
-    flex: 1;
-    padding: 12px;
-    border: none;
+  .card-head-icon {
+    width: 38px; height: 38px;
     border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
   }
-  .btn-camera { background: var(--green); color: white; }
-  .btn-camera:hover { background: #22543d; }
-  .btn-gallery { background: #e8f5e9; color: var(--green); }
-  .btn-gallery:hover { background: #c8f0d8; }
-  #cameraInput, #galleryInput { display: none; }
+  .card-head-title { font-size: 1rem; font-weight: 700; color: var(--navy); }
+  .card-head-sub { font-size: 0.75rem; color: #888; margin-top: 1px; }
+  .card-body { padding: 16px 20px 20px; }
 
-  /* プレビュー画像 */
-  #previewContainer { display: none; margin-top: 16px; }
-  #previewImg {
+  /* 入力エリア */
+  .input-area {
     width: 100%;
-    max-height: 300px;
-    object-fit: contain;
-    border-radius: 10px;
-    border: 2px solid var(--green-pale);
-  }
-  .btn-analyze {
-    display: block;
-    width: 100%;
-    margin-top: 14px;
-    padding: 15px;
-    background: linear-gradient(135deg, var(--green), var(--green-light));
-    color: white;
-    border: none;
+    min-height: 120px;
+    border: 2px solid #b7dfc8;
     border-radius: 12px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    cursor: pointer;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: #333;
+    resize: vertical;
+    transition: border-color 0.2s;
+    background: var(--green-pale);
+    line-height: 1.7;
+  }
+  .input-area:focus { outline: none; border-color: var(--green-light); background: white; }
+  .input-area::placeholder { color: #a0c8a8; }
+
+  .input-hint {
+    font-size: 0.75rem; color: #888;
+    margin-top: 8px; line-height: 1.5;
+  }
+  .input-hint span { color: var(--green); font-weight: 600; }
+
+  /* サンプルボタン */
+  .sample-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+  .sample-btn {
+    background: #f0f0f0; border: none;
+    border-radius: 50px; padding: 5px 14px;
+    font-size: 0.75rem; color: #555;
+    cursor: pointer; transition: all 0.15s;
+    font-family: inherit;
+  }
+  .sample-btn:hover { background: var(--green-pale); color: var(--green); }
+
+  /* 分析ボタン */
+  .btn-analyze {
+    display: block; width: 100%;
+    margin-top: 14px; padding: 15px;
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    color: white; border: none;
+    border-radius: 12px; font-size: 1.05rem;
+    font-weight: 700; cursor: pointer;
     letter-spacing: 0.05em;
     box-shadow: 0 4px 16px rgba(45,106,79,0.35);
-    transition: all 0.2s;
+    transition: all 0.2s; font-family: inherit;
   }
   .btn-analyze:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45,106,79,0.45); }
-  .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-  /* ローディング */
-  #loading { display: none; text-align: center; padding: 30px; }
-  .spinner {
-    width: 50px; height: 50px;
-    border: 4px solid #d8f3dc;
-    border-top-color: var(--green);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 14px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 0.95rem; color: var(--green); font-weight: 600; }
-  .loading-sub { font-size: 0.78rem; color: #888; margin-top: 4px; }
+  .btn-analyze:active { transform: translateY(0); }
 
   /* 結果エリア */
   #results { display: none; }
 
   /* サマリーバナー */
   .summary-banner {
-    padding: 20px;
-    border-radius: 14px;
-    margin-bottom: 16px;
-    text-align: center;
+    border-radius: 14px; padding: 20px;
+    margin-bottom: 16px; text-align: center;
+    border: 2px solid;
   }
-  .summary-banner.all-clear { background: linear-gradient(135deg, #d8f3dc, #e8f5e9); border: 2px solid #74c69d; }
-  .summary-banner.has-concern { background: linear-gradient(135deg, #fff8e1, #fff3cd); border: 2px solid var(--yellow); }
-  .summary-banner.has-risk { background: linear-gradient(135deg, var(--red-pale), #ffe8e8); border: 2px solid var(--red); }
-  .summary-count { font-size: 2.5rem; font-weight: 800; }
-  .summary-label { font-size: 0.85rem; color: #555; margin-top: 4px; }
+  .summary-banner.clear { background: linear-gradient(135deg,#d8f3dc,#e8f5e9); border-color: #74c69d; }
+  .summary-banner.concern { background: linear-gradient(135deg,#fff8e1,#fff3cd); border-color: var(--yellow); }
+  .summary-banner.risk { background: linear-gradient(135deg,var(--red-pale),#ffe8e8); border-color: #f4a0a0; }
+  .summary-emoji { font-size: 2.4rem; margin-bottom: 6px; }
+  .summary-count { font-size: 2.2rem; font-weight: 800; }
+  .summary-label { font-size: 0.88rem; color: #444; margin-top: 4px; }
 
-  /* リスク別カウント */
-  .risk-counts { display: flex; gap: 10px; margin: 16px 0; }
+  /* リスク集計バー */
+  .risk-counts {
+    display: flex; gap: 10px; margin: 16px 0;
+  }
   .risk-count-item {
-    flex: 1;
-    text-align: center;
-    background: white;
-    border-radius: 10px;
+    flex: 1; text-align: center;
+    background: white; border-radius: 12px;
     padding: 12px 6px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
-  .risk-count-num { font-size: 1.6rem; font-weight: 800; }
-  .risk-count-label { font-size: 0.72rem; color: #666; margin-top: 2px; }
+  .risk-count-num { font-size: 1.7rem; font-weight: 800; }
+  .risk-count-label { font-size: 0.7rem; color: #666; margin-top: 2px; }
 
   /* 添加物カード */
-  .additive-list { margin-top: 8px; }
   .additive-card {
-    border-radius: 12px;
-    margin-bottom: 12px;
+    border-radius: 12px; margin-bottom: 10px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border: 1px solid transparent;
   }
+  .additive-card.high { border-color: #ffd0d0; }
+  .additive-card.medium { border-color: #ffe9a0; }
+  .additive-card.low { border-color: #b7dfc8; }
+  .additive-card.unknown { border-color: #e0e0e0; }
+
   .additive-header {
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
+    padding: 13px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; user-select: none;
   }
-  .risk-badge {
-    flex-shrink: 0;
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
+  .additive-card.high .additive-header { background: #fff4f4; }
+  .additive-card.medium .additive-header { background: #fffbf0; }
+  .additive-card.low .additive-header { background: #f2fbf5; }
+  .additive-card.unknown .additive-header { background: #f8f8f8; }
+
+  .risk-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem; flex-shrink: 0;
   }
-  .risk-high .additive-header { background: #fff0f0; }
-  .risk-high .risk-badge { background: #ffd5d5; }
-  .risk-medium .additive-header { background: #fff9e6; }
-  .risk-medium .risk-badge { background: #ffeeba; }
-  .risk-low .additive-header { background: #f0fbf4; }
-  .risk-low .risk-badge { background: #d0f0dc; }
-  .risk-unknown .additive-header { background: #f5f5f5; }
-  .risk-unknown .risk-badge { background: #e0e0e0; }
+  .additive-card.high .risk-icon { background: #ffdede; }
+  .additive-card.medium .risk-icon { background: #ffeeba; }
+  .additive-card.low .risk-icon { background: #c8f0d8; }
+  .additive-card.unknown .risk-icon { background: #e5e5e5; }
 
-  .additive-name-wrap { flex: 1; }
-  .additive-name { font-size: 0.97rem; font-weight: 700; color: var(--navy); }
-  .additive-purpose {
-    display: inline-block;
-    background: #eee;
-    border-radius: 4px;
-    padding: 1px 7px;
-    font-size: 0.72rem;
-    color: #555;
-    margin-top: 3px;
+  .additive-info { flex: 1; min-width: 0; }
+  .additive-name {
+    font-size: 0.95rem; font-weight: 700;
+    color: var(--navy);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .risk-high .additive-purpose { background: #ffe0e0; color: #c0392b; }
-  .risk-medium .additive-purpose { background: #ffeeba; color: #856404; }
-  .risk-low .additive-purpose { background: #d0f0dc; color: #1a6b3c; }
+  .additive-cat { font-size: 0.72rem; color: #888; margin-top: 2px; }
 
-  .risk-label-text { font-size: 0.75rem; font-weight: 700; }
-  .risk-high .risk-label-text { color: var(--red); }
-  .risk-medium .risk-label-text { color: #d4890a; }
-  .risk-low .risk-label-text { color: var(--green); }
-  .risk-unknown .risk-label-text { color: #888; }
-
-  .chevron { font-size: 0.8rem; color: #aaa; transition: transform 0.2s; }
+  .risk-label-wrap { flex-shrink: 0; text-align: right; }
+  .risk-label-text { font-size: 0.73rem; font-weight: 700; }
+  .additive-card.high .risk-label-text { color: var(--red); }
+  .additive-card.medium .risk-label-text { color: #c97a00; }
+  .additive-card.low .risk-label-text { color: var(--green); }
+  .additive-card.unknown .risk-label-text { color: #888; }
+  .chevron { font-size: 0.75rem; color: #bbb; margin-top: 3px; transition: transform 0.2s; }
   .additive-card.open .chevron { transform: rotate(180deg); }
 
   .additive-body {
     display: none;
     padding: 14px 16px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #f0f0f0;
     background: white;
   }
   .additive-card.open .additive-body { display: block; }
 
-  .info-row { margin-bottom: 10px; }
-  .info-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 2px;
+  .info-block { margin-bottom: 10px; }
+  .info-lbl {
+    font-size: 0.68rem; font-weight: 700;
+    color: #aaa; letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 3px;
   }
-  .info-value { font-size: 0.84rem; color: #333; line-height: 1.55; }
+  .info-val { font-size: 0.83rem; color: #333; line-height: 1.6; }
 
-  .tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
   .tag {
-    background: #eee;
-    border-radius: 50px;
-    padding: 2px 10px;
-    font-size: 0.7rem;
-    color: #555;
+    border-radius: 50px; padding: 2px 10px;
+    font-size: 0.68rem;
   }
   .tag.danger { background: #ffd5d5; color: #c0392b; }
   .tag.warn { background: #ffeeba; color: #856404; }
+  .tag.safe { background: #d0f0dc; color: #1a6b3c; }
+  .tag.neutral { background: #eee; color: #555; }
 
   /* 未登録 */
-  .unknown-list {
-    background: #f9f9f9;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-top: 16px;
+  .unknown-box {
+    background: #f9f9f9; border-radius: 10px;
+    padding: 14px 16px; margin-top: 10px;
   }
-  .unknown-title { font-size: 0.85rem; font-weight: 700; color: #888; margin-bottom: 8px; }
-  .unknown-item { font-size: 0.82rem; color: #999; padding: 3px 0; }
+  .unknown-title { font-size: 0.82rem; font-weight: 700; color: #999; margin-bottom: 8px; }
+  .unknown-item { font-size: 0.8rem; color: #aaa; padding: 3px 0; }
 
-  /* リセット */
+  /* ゼロ件 */
+  .zero-result {
+    text-align: center; padding: 30px 20px;
+    color: #888; font-size: 0.9rem;
+  }
+  .zero-result .big { font-size: 2.5rem; margin-bottom: 10px; }
+
+  /* フッター注意書き */
+  .footer-note {
+    background: #f5f5f5; border-radius: 12px;
+    padding: 16px 18px; margin-top: 20px;
+    font-size: 0.74rem; color: #666; line-height: 1.7;
+  }
+  .footer-note strong { color: #333; }
+
   .btn-reset {
     display: block; width: 100%;
     background: #f0f0f0; color: #555;
     border: none; border-radius: 12px;
-    padding: 14px; font-size: 0.95rem;
-    cursor: pointer; margin-top: 16px;
-    transition: background 0.2s;
+    padding: 13px; font-size: 0.93rem;
+    cursor: pointer; margin-top: 14px;
+    transition: background 0.2s; font-family: inherit;
   }
   .btn-reset:hover { background: #e0e0e0; }
 
-  /* フッター注意書き */
-  .footer-disclaimer {
-    background: #f5f5f5;
-    border-radius: 12px;
-    padding: 16px 18px;
-    margin-top: 24px;
-    font-size: 0.75rem;
-    color: #666;
-    line-height: 1.7;
+  /* エビデンスセクション */
+  .evidence-section {
+    background: linear-gradient(135deg, var(--navy), #1a3a4a);
+    border-radius: 16px; padding: 22px 20px;
+    margin-bottom: 20px; color: white;
   }
-  .footer-disclaimer strong { color: #333; }
-
-  /* エラー表示 */
-  #errorBox { display: none; }
-  .error-card {
-    background: var(--red-pale);
-    border: 1px solid #f5c6cb;
-    border-radius: 12px;
-    padding: 18px;
-    margin: 16px 0;
-    text-align: center;
+  .ev-title {
+    font-size: 0.97rem; font-weight: 700;
+    color: var(--yellow); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
   }
-  .error-icon { font-size: 2rem; margin-bottom: 8px; }
-  .error-msg { font-size: 0.9rem; color: #721c24; }
+  .ev-item {
+    background: rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 12px 14px;
+    margin-bottom: 9px; border-left: 3px solid var(--green-light);
+  }
+  .ev-item-title { font-size: 0.84rem; font-weight: 700; color: #a8dfda; margin-bottom: 3px; }
+  .ev-item-body { font-size: 0.76rem; color: rgba(255,255,255,0.72); line-height: 1.55; }
 </style>
 </head>
 <body>
@@ -328,334 +313,596 @@
 <div class="header">
   <div class="header-icon">🔍</div>
   <h1>食品添加物チェッカー</h1>
-  <p>商品ラベルを撮影するだけで<br>含まれる添加物と身体への影響を表示します</p>
+  <p>原材料名を貼り付けるだけで<br>含まれる添加物と身体への影響を即座に表示</p>
 </div>
 
 <div class="container">
 
   <!-- 注意書き -->
   <div class="disclaimer">
-    <strong>【重要】</strong> このアプリは食品添加物に関する<strong>参考情報の提供</strong>を目的としており、特定商品の安全性の保証・否定をするものではありません。
-    販売されている商品自体に問題があることを示すものではなく、<strong>購入・使用の判断はお客様ご自身でお願いします。</strong>
-    健康上の不安がある方は医師・管理栄養士にご相談ください。
+    <strong>【重要なお知らせ】</strong>
+    このアプリは食品添加物に関する<strong>参考情報の提供</strong>を目的としており、特定商品の安全性・危険性を判断・断定するものではありません。
+    <strong>販売されている商品に問題があることを示すものではなく、購入・使用の判断はお客様ご自身でお願いします。</strong>
+    健康上の懸念がある方は医師・管理栄養士にご相談ください。
   </div>
 
-  <!-- アップロードカード -->
-  <div class="card" id="uploadCard">
+  <!-- 入力カード -->
+  <div class="card" id="inputCard">
+    <div class="card-head">
+      <div class="card-head-icon" style="background:#e8f5e9;">📋</div>
+      <div>
+        <div class="card-head-title">原材料名を入力・ペースト</div>
+        <div class="card-head-sub">商品パッケージの「原材料名」欄をそのまま貼り付けてください</div>
+      </div>
+    </div>
     <div class="card-body">
 
-      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-        <div class="upload-icon">📷</div>
-        <div class="upload-title">ラベル画像をここにドロップ</div>
-        <div class="upload-subtitle">またはタップして選択</div>
-        <input type="file" id="fileInput" accept="image/*">
+      <textarea class="input-area" id="ingredientInput" placeholder="例）砂糖、小麦粉、植物油脂、食塩、乳化剤（大豆レシチン）、酸化防止剤（BHT、BHA）、着色料（赤色40号）、保存料（ソルビン酸K）、甘味料（アスパルテーム・L-フェニルアラニン化合物）"></textarea>
+
+      <div class="input-hint">
+        💡 商品裏面の「原材料名」欄の文字をすべてコピーして貼り付けるか、直接入力してください。<br>
+        <span>添加物は括弧「（）」内の表記を含めると精度が上がります。</span>
       </div>
 
-      <div class="btn-group">
-        <button class="btn btn-camera" onclick="document.getElementById('cameraInput').click()">
-          📸 カメラで撮影
-        </button>
-        <button class="btn btn-gallery" onclick="document.getElementById('galleryInput').click()">
-          🖼️ ギャラリーから選択
-        </button>
-      </div>
-      <input type="file" id="cameraInput" accept="image/*" capture="environment">
-      <input type="file" id="galleryInput" accept="image/*">
-
-      <div id="previewContainer">
-        <img id="previewImg" src="" alt="プレビュー">
-        <button class="btn-analyze" id="analyzeBtn" onclick="analyzeImage()">
-          🔬 添加物を分析する
-        </button>
+      <div style="font-size:0.78rem;color:#999;margin-top:12px;margin-bottom:4px;">▼ サンプルを試す</div>
+      <div class="sample-list">
+        <button class="sample-btn" onclick="setSample(0)">🍖 ウインナー</button>
+        <button class="sample-btn" onclick="setSample(1)">🥤 ダイエット飲料</button>
+        <button class="sample-btn" onclick="setSample(2)">🍜 インスタント麺</button>
+        <button class="sample-btn" onclick="setSample(3)">🍞 市販パン</button>
       </div>
 
+      <button class="btn-analyze" onclick="analyze()">🔬 添加物をチェックする</button>
     </div>
   </div>
 
-  <!-- ローディング -->
-  <div class="card" id="loading">
-    <div class="card-body">
-      <div id="loading">
-        <div class="spinner"></div>
-        <div class="loading-text">AIがラベルを読み取り中…</div>
-        <div class="loading-sub">Claude Vision APIで分析しています。少々お待ちください。</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- エラー -->
-  <div id="errorBox">
-    <div class="error-card">
-      <div class="error-icon">⚠️</div>
-      <div class="error-msg" id="errorMsg">分析中にエラーが発生しました。</div>
-    </div>
-  </div>
-
-  <!-- 結果 -->
+  <!-- 結果エリア -->
   <div id="results">
-
     <div class="card">
       <div class="card-body">
 
         <!-- サマリー -->
         <div class="summary-banner" id="summaryBanner">
+          <div class="summary-emoji" id="summaryEmoji">🔍</div>
           <div class="summary-count" id="summaryCount">0</div>
           <div class="summary-label" id="summaryLabel">種類の添加物を検出</div>
         </div>
 
-        <!-- リスク別カウント -->
+        <!-- リスク別集計 -->
         <div class="risk-counts">
           <div class="risk-count-item">
-            <div class="risk-count-num" id="countHigh" style="color:var(--red)">0</div>
+            <div class="risk-count-num" id="cntH" style="color:var(--red)">0</div>
             <div class="risk-count-label">🔴 要注意</div>
           </div>
           <div class="risk-count-item">
-            <div class="risk-count-num" id="countMed" style="color:#d4890a">0</div>
+            <div class="risk-count-num" id="cntM" style="color:#c97a00">0</div>
             <div class="risk-count-label">🟡 注意</div>
           </div>
           <div class="risk-count-item">
-            <div class="risk-count-num" id="countLow" style="color:var(--green)">0</div>
-            <div class="risk-count-label">🟢 比較的安全</div>
+            <div class="risk-count-num" id="cntL" style="color:var(--green)">0</div>
+            <div class="risk-count-label">🟢 安全寄り</div>
           </div>
           <div class="risk-count-item">
-            <div class="risk-count-num" id="countUnknown" style="color:#888">0</div>
+            <div class="risk-count-num" id="cntU" style="color:#aaa">0</div>
             <div class="risk-count-label">⚪ 情報なし</div>
           </div>
         </div>
 
         <!-- 添加物リスト -->
-        <div class="additive-list" id="additiveList"></div>
+        <div id="additiveList"></div>
 
-        <!-- 未登録リスト -->
-        <div class="unknown-list" id="unknownList" style="display:none">
-          <div class="unknown-title">⚪ データベース未登録の添加物</div>
+        <!-- 未登録 -->
+        <div class="unknown-box" id="unknownBox" style="display:none">
+          <div class="unknown-title">⚪ データベース未登録（詳細情報なし）</div>
           <div id="unknownItems"></div>
         </div>
 
-        <!-- 注意書き -->
-        <div class="footer-disclaimer">
-          <strong>【データソースについて】</strong><br>
-          このアプリの情報は以下の公的機関・研究の公開データをもとに作成しています：
-          食品安全委員会（FSCJ）、厚生労働省、WHO/FAO JECFA（合同食品添加物専門家委員会）、
+        <div class="footer-note">
+          <strong>【情報出典】</strong><br>
+          本データベースは以下の公的機関・査読論文の公開情報をもとに作成しています：
+          内閣府食品安全委員会（FSCJ）、厚生労働省、WHO/FAO JECFA（合同食品添加物専門家委員会）、
           EFSA（欧州食品安全機関）、IARC（国際がん研究機関）、FDA（米国食品医薬品局）。<br><br>
-          <strong>ADI（一日摂取許容量）以内の通常の食生活では、多くの添加物は安全とされています。</strong>
-          リスク表示は「大量・長期摂取」や「特定の疾患・体質を持つ方」への影響研究を含みます。
-          個別の判断は必ず医師・管理栄養士にご相談ください。<br><br>
-          <strong>販売されている商品が危険であることを示すものではありません。</strong>
+          ADI（一日摂取許容量）以内の通常の食生活では、多くの添加物は安全とされています。
+          リスク表示は大量・長期摂取や特定の体質・疾患を持つ方への研究報告を含みます。
+          <strong>掲載商品が危険であることを示すものではありません。</strong>
         </div>
 
-        <button class="btn-reset" onclick="resetApp()">🔄 別の商品をチェックする</button>
+        <button class="btn-reset" onclick="resetApp()">🔄 別の商品をチェック</button>
       </div>
     </div>
 
-  </div><!-- /results -->
+    <!-- 科学的根拠セクション -->
+    <div class="evidence-section">
+      <div class="ev-title">📚 知っておきたい添加物の知識</div>
+      <div class="ev-item">
+        <div class="ev-item-title">ADI（一日摂取許容量）とは？</div>
+        <div class="ev-item-body">生涯にわたって毎日摂取しても健康に影響が出ないと判断された量（動物実験で影響が出ない量の1/100以下に設定）。通常の食事での摂取量はこれを大幅に下回ります。</div>
+      </div>
+      <div class="ev-item">
+        <div class="ev-item-title">IARC（国際がん研究機関）の分類</div>
+        <div class="ev-item-body">グループ1＝発がん性あり / 2A＝おそらく発がん性あり / 2B＝発がん性の可能性あり / 3＝評価困難。「可能性あり」は"証拠が限定的"であり"危険"と同義ではありません。</div>
+      </div>
+      <div class="ev-item">
+        <div class="ev-item-title">腸と添加物の関係</div>
+        <div class="ev-item-body">近年、カラギーナン・ポリソルベート80・人工甘味料が腸内細菌叢（フローラ）に影響を与える可能性を示す研究が増えています。腸は免疫・神経・代謝の要であり、添加物の長期累積摂取への関心が高まっています。</div>
+      </div>
+      <div class="ev-item">
+        <div class="ev-item-title">子どもへの配慮</div>
+        <div class="ev-item-body">タール系合成色素6種（赤色40号など）と安息香酸Naは、子どもの多動・ADHD様症状との関連が示され（Lancet 2007）、EUでは警告ラベル表示が義務付けられています。</div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 <script>
-let currentImageBase64 = null;
-let currentMediaType = 'image/jpeg';
-
-// ファイル選択イベント登録
-['fileInput','cameraInput','galleryInput'].forEach(id => {
-  document.getElementById(id).addEventListener('change', handleFile);
-});
-
-// ドラッグ&ドロップ
-const uploadArea = document.getElementById('uploadArea');
-uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
-uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-uploadArea.addEventListener('drop', e => {
-  e.preventDefault();
-  uploadArea.classList.remove('drag-over');
-  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
-});
-
-function handleFile(e) {
-  const file = e.target.files[0];
-  if (file) processFile(file);
-  e.target.value = '';
-}
-
-function processFile(file) {
-  const reader = new FileReader();
-  currentMediaType = file.type || 'image/jpeg';
-  reader.onload = ev => {
-    const result = ev.target.result;
-    currentImageBase64 = result.split(',')[1];
-    document.getElementById('previewImg').src = result;
-    document.getElementById('previewContainer').style.display = 'block';
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('errorBox').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-async function analyzeImage() {
-  if (!currentImageBase64) return;
-
-  document.getElementById('analyzeBtn').disabled = true;
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('errorBox').style.display = 'none';
-
-  try {
-    const res = await fetch('/api/analyze-label', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageBase64: currentImageBase64, mediaType: currentMediaType })
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-
-    document.getElementById('loading').style.display = 'none';
-
-    if (data.status === 'unclear') {
-      showError('画像が不鮮明か、ラベルが読み取れませんでした。より鮮明な写真を撮り直してください。');
-      return;
-    }
-
-    renderResults(data.additives || []);
-  } catch (err) {
-    document.getElementById('loading').style.display = 'none';
-    showError('分析中にエラーが発生しました。ネットワーク接続を確認し、再度お試しください。');
-    console.error(err);
-  } finally {
-    document.getElementById('analyzeBtn').disabled = false;
-  }
-}
-
-function showError(msg) {
-  document.getElementById('errorMsg').textContent = msg;
-  document.getElementById('errorBox').style.display = 'block';
-}
-
-const RISK_CONFIG = {
-  high:    { emoji: '🔴', label: '要注意', cls: 'risk-high' },
-  medium:  { emoji: '🟡', label: '注意',   cls: 'risk-medium' },
-  low:     { emoji: '🟢', label: '比較的安全', cls: 'risk-low' },
-  unknown: { emoji: '⚪', label: '情報なし', cls: 'risk-unknown' },
+// =============================================
+// 食品添加物データベース
+// 出典: 食品安全委員会・厚生労働省・JECFA・EFSA・IARC・FDA
+// =============================================
+const DB = {
+  "ソルビン酸": { cat:"保存料", risk:"low", emoji:"🟢",
+    adi:"0〜25 mg/kg体重/日（JECFA）",
+    fx:"通常の摂取量では安全。過剰摂取で消化器への軽度の刺激報告あり。",
+    src:"食品安全委員会 2007年・JECFA ADI設定済み",
+    note:"カリウム塩（ソルビン酸K）として使用が多い。",
+    tags:[["保存料","neutral"]] },
+  "ソルビン酸K": { cat:"保存料", risk:"low", emoji:"🟢",
+    adi:"0〜25 mg/kg体重/日（ソルビン酸として）",
+    fx:"通常摂取量では安全。腎機能低下者はカリウム摂取量に注意。",
+    src:"食品安全委員会・JECFA 評価済み",
+    note:"漬物・チーズ・かまぼこ等に広く使用。",
+    tags:[["保存料","neutral"]] },
+  "ソルビン酸カリウム": { cat:"保存料", risk:"low", emoji:"🟢",
+    adi:"0〜25 mg/kg体重/日",
+    fx:"ソルビン酸Kと同一。通常量では安全性が高い。",
+    src:"JECFA・食品安全委員会",
+    note:"",tags:[["保存料","neutral"]] },
+  "安息香酸": { cat:"保存料", risk:"medium", emoji:"🟡",
+    adi:"0〜5 mg/kg体重/日（JECFA）",
+    fx:"ビタミンC（アスコルビン酸）と反応してベンゼン（発がん性物質）を生成する可能性。子どものADHD様症状との関連研究あり（McCann et al., Lancet 2007）。",
+    src:"EFSA 2016年再評価・英国FSA 勧告",
+    note:"炭酸飲料・ビタミンC添加飲料との組み合わせに特に注意。",
+    tags:[["保存料","neutral"],["ベンゼン生成リスク","warn"]] },
+  "安息香酸Na": { cat:"保存料", risk:"medium", emoji:"🟡",
+    adi:"0〜5 mg/kg体重/日（安息香酸として）",
+    fx:"ビタミンCとのベンゼン生成反応あり。子どもの多動性との関連研究あり。",
+    src:"EFSA・FSA・JECFA 評価済み",
+    note:"炭酸飲料・ドレッシング等に使用。",
+    tags:[["保存料","neutral"],["ベンゼン生成リスク","warn"]] },
+  "安息香酸ナトリウム": { cat:"保存料", risk:"medium", emoji:"🟡",
+    adi:"0〜5 mg/kg体重/日",
+    fx:"安息香酸Naと同一物質。ビタミンCとのベンゼン生成反応あり。",
+    src:"EFSA・JECFA",
+    note:"",tags:[["保存料","neutral"],["ベンゼン生成リスク","warn"]] },
+  "パラオキシ安息香酸エステル": { cat:"保存料", risk:"medium", emoji:"🟡",
+    adi:"0〜10 mg/kg体重/日（JECFA）",
+    fx:"内分泌かく乱作用（エストロゲン様作用）が動物実験で報告。パラベン類と同系統。",
+    src:"EFSA 2004年・食品安全委員会 2009年評価・EUで一部制限",
+    note:"醤油・果実ソース等に使用。",
+    tags:[["保存料","neutral"],["内分泌かく乱","warn"]] },
+  "亜硝酸Na": { cat:"発色剤", risk:"high", emoji:"🔴",
+    adi:"0〜0.06 mg/kg体重/日（JECFA）",
+    fx:"体内でニトロソアミン（IARC グループ2A 発がん性物質）を生成する可能性。WHOは加工肉（亜硝酸塩使用）をグループ1（発がん性あり）に分類（2015年）。乳幼児のメトヘモグロビン血症リスク。",
+    src:"IARC 2015年・WHO 勧告・食品安全委員会 2010年評価",
+    note:"ハム・ベーコン・ウインナー・明太子等。加熱調理でニトロソアミン生成量が増加。",
+    tags:[["発色剤","neutral"],["IARC分類","danger"],["発がん性リスク","danger"],["乳幼児注意","warn"]] },
+  "亜硝酸ナトリウム": { cat:"発色剤", risk:"high", emoji:"🔴",
+    adi:"0〜0.06 mg/kg体重/日",
+    fx:"亜硝酸Naと同一。ニトロソアミン生成リスク・発がん性懸念。",
+    src:"IARC 2015年・WHO・食品安全委員会",
+    note:"",tags:[["発色剤","neutral"],["IARC分類","danger"],["発がん性リスク","danger"]] },
+  "硝酸Na": { cat:"発色剤", risk:"medium", emoji:"🟡",
+    adi:"0〜3.7 mg/kg体重/日（EFSA、硝酸塩として）",
+    fx:"体内で亜硝酸塩に変換される可能性あり。亜硝酸塩と同様のリスク経路。",
+    src:"EFSA 2017年評価・食品安全委員会 評価済み",
+    note:"チーズ・ハム等に使用。",
+    tags:[["発色剤","neutral"]] },
+  "BHA": { cat:"酸化防止剤", risk:"high", emoji:"🔴",
+    adi:"0〜0.5 mg/kg体重/日（JECFA）",
+    fx:"IARCがグループ2B（発がん性の可能性あり）に分類。動物実験でラットの前胃に腫瘍形成。内分泌かく乱作用の懸念あり。",
+    src:"IARC モノグラフ Vol.40・食品安全委員会 2007年評価・EUで一部使用禁止",
+    note:"インスタント食品・スナック菓子・油脂製品。EU・カリフォルニア州で規制強化。",
+    tags:[["酸化防止剤","neutral"],["IARC グループ2B","danger"],["内分泌かく乱","warn"]] },
+  "ブチルヒドロキシアニソール": { cat:"酸化防止剤", risk:"high", emoji:"🔴",
+    adi:"0〜0.5 mg/kg体重/日",
+    fx:"BHAと同一物質。IARC グループ2B分類・内分泌かく乱懸念。",
+    src:"IARC・食品安全委員会",
+    note:"",tags:[["酸化防止剤","neutral"],["IARC グループ2B","danger"]] },
+  "BHT": { cat:"酸化防止剤", risk:"medium", emoji:"🟡",
+    adi:"0〜0.3 mg/kg体重/日（JECFA）",
+    fx:"動物実験で肝臓・肺への影響報告あり。一部でがん促進作用報告もあるが、結果は混在。",
+    src:"JECFA 評価済み・食品安全委員会 2006年評価",
+    note:"油脂・バター・スナック・即席麺に使用。",
+    tags:[["酸化防止剤","neutral"]] },
+  "ジブチルヒドロキシトルエン": { cat:"酸化防止剤", risk:"medium", emoji:"🟡",
+    adi:"0〜0.3 mg/kg体重/日",
+    fx:"BHTと同一物質。",
+    src:"JECFA・食品安全委員会",
+    note:"",tags:[["酸化防止剤","neutral"]] },
+  "エリソルビン酸": { cat:"酸化防止剤", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし（安全性が高いため）",
+    fx:"ビタミンCの立体異性体。過剰摂取でビタミンC吸収阻害の可能性が一部で指摘されている。",
+    src:"食品安全委員会・JECFA 評価済み",
+    note:"果実飲料・缶詰・漬物等に広く使用。",
+    tags:[["酸化防止剤","neutral"]] },
+  "エリソルビン酸Na": { cat:"酸化防止剤", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし",
+    fx:"エリソルビン酸と同様。安全性は高い。",
+    src:"食品安全委員会・JECFA",
+    note:"",tags:[["酸化防止剤","neutral"]] },
+  "亜硫酸Na": { cat:"漂白剤・酸化防止剤", risk:"medium", emoji:"🟡",
+    adi:"0〜0.7 mg/kg体重/日（JECFA、二酸化硫黄として）",
+    fx:"亜硫酸塩過敏症（喘息患者等の推定1%）でアレルギー反応・気管支痙攣リスク。アナフィラキシーの報告あり。",
+    src:"FDA アレルゲン表示対象物質・EFSA・食品安全委員会 評価済み",
+    note:"ドライフルーツ・ワイン・海老等に使用。",
+    tags:[["漂白剤","neutral"],["アレルギー","warn"]] },
+  "次亜硫酸Na": { cat:"漂白剤", risk:"medium", emoji:"🟡",
+    adi:"0〜0.7 mg/kg体重/日（二酸化硫黄として）",
+    fx:"亜硫酸塩過敏症の人で喘息発作誘発リスク。ビタミンB1（チアミン）を分解する特性がある。",
+    src:"EFSA・FDA・食品安全委員会",
+    note:"水産加工品・乾燥果実等に使用。",
+    tags:[["漂白剤","neutral"],["アレルギー","warn"]] },
+  "次亜硫酸ナトリウム": { cat:"漂白剤", risk:"medium", emoji:"🟡",
+    adi:"0〜0.7 mg/kg体重/日",
+    fx:"次亜硫酸Naと同一。喘息患者は注意。",
+    src:"EFSA・FDA・食品安全委員会",
+    note:"",tags:[["漂白剤","neutral"],["アレルギー","warn"]] },
+  "赤色2号": { cat:"着色料（タール系）", risk:"high", emoji:"🔴",
+    adi:"ADIなし（FAO/WHO）",
+    fx:"動物実験で催奇形性・変異原性の報告。米国（FDA）では使用禁止。",
+    src:"FAO/WHO JECFA・FDA禁止物質",
+    note:"日本では使用可能。EU・米国では禁止。",
+    tags:[["着色料","neutral"],["タール系色素","warn"],["海外で禁止","danger"]] },
+  "赤色3号": { cat:"着色料（タール系）", risk:"high", emoji:"🔴",
+    adi:"0〜0.1 mg/kg体重/日（JECFA）",
+    fx:"動物実験で甲状腺腫瘍との関連報告。EUでは使用禁止。FDA 2024年禁止発表。",
+    src:"JECFA評価・EU禁止・FDA 2024年禁止発表",
+    note:"さくらんぼ・かまぼこ等に使用。",
+    tags:[["着色料","neutral"],["タール系色素","warn"],["海外で禁止","danger"]] },
+  "赤色40号": { cat:"着色料（タール系）", risk:"medium", emoji:"🟡",
+    adi:"0〜7 mg/kg体重/日（JECFA）",
+    fx:"子どもの多動性・ADHD様症状との関連研究（McCann et al., Lancet 2007）。EUでは警告表示義務。",
+    src:"EFSA 2008年評価・英国FSA 勧告・EU警告ラベル義務化",
+    note:"清涼飲料水・菓子・アイスクリームに使用。",
+    tags:[["着色料","neutral"],["タール系色素","warn"],["子ども注意","warn"]] },
+  "赤色102号": { cat:"着色料（タール系）", risk:"medium", emoji:"🟡",
+    adi:"0〜4 mg/kg体重/日（JECFA）",
+    fx:"子どもの行動への影響が懸念される合成色素群の一つ。アスピリン過敏症の人に反応を起こす可能性。",
+    src:"EU警告ラベル義務化対象・食品安全委員会",
+    note:"漬物・菓子・魚卵等に使用。",
+    tags:[["着色料","neutral"],["タール系色素","warn"],["アレルギー","warn"]] },
+  "赤色104号": { cat:"着色料（タール系）", risk:"medium", emoji:"🟡",
+    adi:"0〜0.75 mg/kg体重/日（JECFA）",
+    fx:"一部の海外研究で変異原性が疑われている。アレルギー反応の報告あり。",
+    src:"食品安全委員会・JECFA 評価済み",
+    note:"",tags:[["着色料","neutral"],["タール系色素","warn"]] },
+  "赤色106号": { cat:"着色料（タール系）", risk:"medium", emoji:"🟡",
+    adi:"ADIなし（十分なデータなし）",
+    fx:"変異原性を示す報告があり、多くの国では使用されていない。",
+    src:"食品安全委員会・JECFA 評価済み",
+    note:"EU・米国では未認可。",
+    tags:[["着色料","neutral"],["タール系色素","warn"],["海外で未認可","danger"]] },
+  "黄色4号": { cat:"着色料（タール系）", risk:"medium", emoji:"🟡",
+    adi:"0〜7.5 mg/kg体重/日（JECFA）",
+    fx:"アスピリン過敏症・喘息患者でアレルギー反応の報告。子どもの多動との関連研究あり。ノルウェー・フィンランドでは禁止。",
+    src:"EFSA・EU警告ラベル義務化対象・食品安全委員会",
+    note:"菓子・清涼飲料水等。タートラジンとも呼ばれる。",
+    tags:[["着色料","neutral"],["タール系色素","warn"],["アレルギー","warn"],["子ども注意","warn"]] },
+  "黄色5号": { cat:"着色料（タール系）", risk:"medium", emoji:"🟡",
+    adi:"0〜2.5 mg/kg体重/日（JECFA）",
+    fx:"EU警告ラベル対象の6色素の一つ。子どもの行動への影響懸念。",
+    src:"EFSA・EU警告ラベル義務化対象",
+    note:"菓子・清涼飲料水等に使用。",
+    tags:[["着色料","neutral"],["タール系色素","warn"],["子ども注意","warn"]] },
+  "青色1号": { cat:"着色料（タール系）", risk:"low", emoji:"🟢",
+    adi:"0〜12.5 mg/kg体重/日（JECFA）",
+    fx:"通常の食品使用量では問題は少ないとされる。大量摂取の動物実験で腫瘍報告あり。",
+    src:"JECFA・食品安全委員会 評価済み",
+    note:"菓子・アイスクリームに使用。EUでは一部禁止。",
+    tags:[["着色料","neutral"],["タール系色素","warn"]] },
+  "青色2号": { cat:"着色料（タール系）", risk:"low", emoji:"🟢",
+    adi:"0〜5 mg/kg体重/日（JECFA）",
+    fx:"EUでは食品への使用禁止。動物実験での脳腫瘍との関連を懸念する意見がある（エビデンスは限定的）。",
+    src:"JECFA・食品安全委員会 評価済み",
+    note:"EUでは禁止。",
+    tags:[["着色料","neutral"],["タール系色素","warn"],["EU禁止","danger"]] },
+  "緑色3号": { cat:"着色料（タール系）", risk:"medium", emoji:"🟡",
+    adi:"0〜25 mg/kg体重/日（JECFA）",
+    fx:"EUでは使用禁止。動物実験での副作用報告あり。",
+    src:"食品安全委員会・JECFA",
+    note:"EU禁止。",
+    tags:[["着色料","neutral"],["タール系色素","warn"]] },
+  "カラメル色素": { cat:"着色料（カラメル類）", risk:"medium", emoji:"🟡",
+    adi:"クラスIII・IVはADI設定なし",
+    fx:"クラスIII・IVは製造過程で4-メチルイミダゾール（4-MeI）が生成され、IARCがグループ2B（発がん性の可能性あり）に分類。",
+    src:"IARC グループ2B（4-MeI）・カリフォルニア州Prop.65規制・EFSA評価",
+    note:"コーラ・しょうゆ・ソース等に広く使用。クラスI・IIは比較的安全。",
+    tags:[["着色料","neutral"],["IARC グループ2B（4-MeI）","danger"]] },
+  "アスパルテーム": { cat:"甘味料（人工）", risk:"medium", emoji:"🟡",
+    adi:"0〜40 mg/kg体重/日（JECFA）",
+    fx:"IARCが2023年にグループ2B（発がん性の可能性あり）に分類。JECFAはADI以内は安全と結論。フェニルケトン尿症（PKU）患者には禁忌（フェニルアラニンを含むため）。",
+    src:"IARC 2023年7月分類・JECFA 2023年評価",
+    note:"ダイエット飲料・ガム・菓子に広く使用。PKU患者は摂取不可。",
+    tags:[["甘味料","neutral"],["IARC グループ2B（2023）","warn"],["PKU患者禁忌","danger"]] },
+  "アスパルテーム・L-フェニルアラニン化合物": { cat:"甘味料（人工）", risk:"medium", emoji:"🟡",
+    adi:"0〜40 mg/kg体重/日",
+    fx:"アスパルテームと同一物質。フェニルケトン尿症（PKU）患者には禁忌。IARC 2023年グループ2B分類。",
+    src:"IARC 2023年・JECFA",
+    note:"ラベル表記がこの形式の場合、PKU患者への警告表示が義務付けられている。",
+    tags:[["甘味料","neutral"],["IARC グループ2B（2023）","warn"],["PKU患者禁忌","danger"]] },
+  "アセスルファムK": { cat:"甘味料（人工）", risk:"medium", emoji:"🟡",
+    adi:"0〜15 mg/kg体重/日（JECFA）",
+    fx:"動物実験で白血病・リンパ腫との関連研究報告あり（Soffritti, 2016）。腸内細菌叢への影響を示す研究もある。",
+    src:"JECFA・食品安全委員会 評価済み（現行基準内で安全）",
+    note:"ダイエット飲料・菓子・ガムに使用。熱に安定。",
+    tags:[["甘味料","neutral"],["腸への影響","warn"]] },
+  "アセスルファムカリウム": { cat:"甘味料（人工）", risk:"medium", emoji:"🟡",
+    adi:"0〜15 mg/kg体重/日",
+    fx:"アセスルファムKと同一物質。",
+    src:"JECFA・食品安全委員会",
+    note:"",tags:[["甘味料","neutral"],["腸への影響","warn"]] },
+  "スクラロース": { cat:"甘味料（人工）", risk:"low", emoji:"🟢",
+    adi:"0〜15 mg/kg体重/日（JECFA）",
+    fx:"一部の研究で腸内細菌叢への影響、高温加熱でクロロプロパノール生成の懸念が報告されている（Bornemann et al., 2021）。",
+    src:"JECFA・食品安全委員会 評価済み",
+    note:"幅広い食品に使用。砂糖の約600倍の甘さ。",
+    tags:[["甘味料","neutral"],["腸への影響","warn"]] },
+  "サッカリン": { cat:"甘味料（人工）", risk:"low", emoji:"🟢",
+    adi:"0〜5 mg/kg体重/日（JECFA）",
+    fx:"過去の膀胱がん懸念はラット特有のメカニズムと判明し現在は除外。腸内細菌叢への影響研究がある。",
+    src:"JECFA・EFSA・食品安全委員会 現行評価では安全",
+    note:"漬物・清涼飲料水等に使用。",
+    tags:[["甘味料","neutral"]] },
+  "ステビア": { cat:"甘味料（天然）", risk:"low", emoji:"🟢",
+    adi:"0〜4 mg/kg体重/日（JECFA、ステビオール配糖体として）",
+    fx:"天然甘味料で安全性は高い。過剰摂取で血圧低下・血糖低下の可能性（降圧薬・糖尿病薬との相互作用）。",
+    src:"JECFA・EFSA・食品安全委員会 評価済み",
+    note:"砂糖の200〜300倍の甘さ。",
+    tags:[["甘味料","neutral"],["天然","safe"]] },
+  "キシリトール": { cat:"甘味料（糖アルコール）", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし",
+    fx:"過剰摂取（50g以上/日）で下痢・腹痛。犬には毒性があるため注意。",
+    src:"JECFA・EFSA 評価済み",
+    note:"ガム・歯磨き粉等に使用。",
+    tags:[["甘味料","neutral"],["糖アルコール","neutral"]] },
+  "ソルビトール": { cat:"甘味料（糖アルコール）", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし",
+    fx:"過剰摂取（50g以上/日）で下痢・腹部膨満。",
+    src:"JECFA 評価済み",
+    note:"",tags:[["甘味料","neutral"],["糖アルコール","neutral"]] },
+  "カラギーナン": { cat:"増粘剤・ゲル化剤", risk:"medium", emoji:"🟡",
+    adi:"ADI設定なし（JECFAは現行量で安全とするが懸念意見あり）",
+    fx:"動物実験・試験管内実験で腸の炎症促進、腸管バリア機能への影響が報告されている（Bhattacharyya, 2012等）。IBD（炎症性腸疾患）患者は注意。",
+    src:"国立がん研究所（米）が研究継続・一部機関が使用制限を推奨",
+    note:"牛乳・ヨーグルト・ゼリー・アイスクリームに広く使用。",
+    tags:[["増粘剤","neutral"],["腸への影響","warn"],["IBD患者注意","warn"]] },
+  "増粘多糖類": { cat:"増粘剤（一括名称）", risk:"low", emoji:"🟢",
+    adi:"一括名称のため成分による",
+    fx:"一般的に安全性が高い。カラギーナン・キサンタンガム・グアーガム等を含む総称。",
+    src:"各成分はJECFA・食品安全委員会 評価済み",
+    note:"幅広い加工食品に使用。",
+    tags:[["増粘剤","neutral"]] },
+  "ポリソルベート80": { cat:"乳化剤", risk:"medium", emoji:"🟡",
+    adi:"0〜25 mg/kg体重/日（JECFA）",
+    fx:"動物実験で腸内細菌叢への影響・低グレードの腸炎誘発が報告されている（Chassaing et al., Nature 2015）。IBD患者に懸念。",
+    src:"Chassaing et al., Nature 2015・EFSA 再評価中",
+    note:"アイスクリーム・チョコレート製品に使用。",
+    tags:[["乳化剤","neutral"],["腸への影響","warn"]] },
+  "ポリソルベート": { cat:"乳化剤", risk:"medium", emoji:"🟡",
+    adi:"0〜25 mg/kg体重/日",
+    fx:"ポリソルベート80と同様の懸念。腸内細菌叢への影響研究あり。",
+    src:"Chassaing et al., Nature 2015",
+    note:"",tags:[["乳化剤","neutral"],["腸への影響","warn"]] },
+  "レシチン": { cat:"乳化剤", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし",
+    fx:"大豆・卵黄由来の天然乳化剤。大豆・卵アレルギーの人は注意。",
+    src:"JECFA・EFSA・食品安全委員会 安全と評価",
+    note:"チョコレート・マーガリン・パン等に使用。",
+    tags:[["乳化剤","neutral"],["天然","safe"],["アレルギー注意","warn"]] },
+  "グリシン": { cat:"調味料（アミノ酸）", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし",
+    fx:"アミノ酸の一種。通常量では安全性が高い。",
+    src:"食品安全委員会・JECFA 評価済み",
+    note:"おにぎり・弁当の保存性向上に使用。",
+    tags:[["調味料","neutral"]] },
+  "グルタミン酸Na": { cat:"調味料（アミノ酸）", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし",
+    fx:"「中華料理症候群」との関連は科学的に否定されている（FDA）。通常量では問題なし。",
+    src:"FDA GRAS認定・JECFA・食品安全委員会",
+    note:"最も一般的な旨み調味料。",
+    tags:[["調味料","neutral"]] },
+  "グルタミン酸ナトリウム": { cat:"調味料（アミノ酸）", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし",
+    fx:"グルタミン酸Naと同一物質。通常量では安全。",
+    src:"FDA・JECFA・食品安全委員会",
+    note:"",tags:[["調味料","neutral"]] },
+  "リン酸塩": { cat:"pH調整剤・結着剤", risk:"medium", emoji:"🟡",
+    adi:"70 mg/kg体重/日（EFSA、リンとして）",
+    fx:"食品添加物由来のリン過剰摂取が現代食では懸念されている。リン過多は腎臓への負担・血管石灰化・骨密度低下のリスク。慢性腎疾患患者には特に危険。",
+    src:"EFSA 2015年評価・腎臓学領域での複数エビデンス・厚生労働省 注意喚起",
+    note:"加工肉・ハム・インスタント麺・チーズに広く使用。",
+    tags:[["pH調整剤","neutral"],["腎臓","warn"]] },
+  "クエン酸": { cat:"酸味料・pH調整剤", risk:"low", emoji:"🟢",
+    adi:"ADI設定なし",
+    fx:"食品に自然に含まれる有機酸と同一。過剰摂取で歯のエナメル質侵食の可能性。",
+    src:"JECFA・EFSA・食品安全委員会 安全と評価",
+    note:"清涼飲料水・菓子等に使用。",
+    tags:[["酸味料","neutral"]] },
+  "亜硫酸塩": { cat:"保存料・漂白剤", risk:"medium", emoji:"🟡",
+    adi:"0〜0.7 mg/kg体重/日",
+    fx:"喘息患者・亜硫酸塩過敏症の人でアレルギー反応リスク。ビタミンB1を破壊する。",
+    src:"FDA アレルゲン管理対象・EFSA・食品安全委員会",
+    note:"ワイン・干しブドウ・エビ等に使用。",
+    tags:[["保存料","neutral"],["アレルギー","warn"]] },
+  "カラメル": { cat:"着色料（カラメル類）", risk:"medium", emoji:"🟡",
+    adi:"クラスによる",
+    fx:"カラメル色素と同様。製法によりIARC グループ2Bの4-MeIを含む可能性がある。",
+    src:"IARC・EFSA",
+    note:"",tags:[["着色料","neutral"],["IARC分類","danger"]] },
+  "香料": { cat:"香料（一括名称）", risk:"low", emoji:"🟢",
+    adi:"成分による（一括名称）",
+    fx:"数百種類の化合物を含む総称。一部の合成香料でアレルギー反応の報告あり。",
+    src:"食品安全委員会・JECFA 各成分を評価",
+    note:"飲料・菓子・調味料等に広く使用。",
+    tags:[["香料","neutral"]] },
 };
 
-function renderResults(additives) {
-  const known = additives.filter(a => a.inDb);
-  const unknown = additives.filter(a => !a.inDb);
+// サンプルデータ
+const SAMPLES = [
+  "豚肉（国産）、鶏肉、糖類（水あめ、砂糖）、食塩、植物性たん白、酵母エキス、香辛料、リン酸塩（Na）、酸化防止剤（BHA、アスコルビン酸Na）、発色剤（亜硝酸Na）、乳化剤",
+  "水、砂糖、酸味料（クエン酸、リンゴ酸）、甘味料（アスパルテーム・L-フェニルアラニン化合物、アセスルファムK、スクラロース）、香料、カラメル色素、安息香酸Na、ビタミンC",
+  "小麦粉、植物油脂（精製パームオイル）、食塩、かんすい、たん白加水分解物、酸化防止剤（BHT）、カラメル色素、増粘多糖類、酒精、調味料（アミノ酸等）、リン酸塩（Na）",
+  "小麦粉、砂糖、マーガリン、鶏卵、脱脂粉乳、食塩、乳化剤（グリセリン脂肪酸エステル、レシチン）、膨張剤（炭酸水素Na、焼ミョウバン）、pH調整剤、香料、ビタミンC"
+];
 
+function setSample(i) {
+  document.getElementById('ingredientInput').value = SAMPLES[i];
+}
+
+// ─── メイン解析処理 ───
+function analyze() {
+  const input = document.getElementById('ingredientInput').value.trim();
+  if (!input) { alert('原材料名を入力してください。'); return; }
+
+  const found = [];
+  const foundNames = new Set();
+
+  // DB内の全キーと入力テキストを照合
+  const entries = Object.entries(DB);
+  // 長い名前から優先的にマッチ（部分一致の誤検知を減らす）
+  entries.sort((a,b) => b[0].length - a[0].length);
+
+  for (const [name, info] of entries) {
+    if (input.includes(name) && !foundNames.has(name)) {
+      foundNames.add(name);
+      found.push({ name, ...info });
+    }
+  }
+
+  // 追加: 括弧内の不明添加物を抽出
+  const allParen = [...input.matchAll(/[（(]([^）)]+)[）)]/g)].map(m => m[1]);
+  const unknownItems = [];
+  // 括弧内に「○○剤」「○○料」「○○素」的な語が含まれ、かつDB未登録のもの
+  const additiveKeywords = /料|剤|素|色素|剤類|化合物|酸$|酸Na$|酸K$/;
+  allParen.forEach(p => {
+    const clean = p.replace(/^(.*?)(保存料|発色剤|甘味料|酸化防止剤|着色料|増粘剤|乳化剤|調味料|香料|pH調整剤|膨張剤|漂白剤|光沢剤|結着剤)$/,'$2').trim();
+    const parts = clean.split(/[、，,・\s]+/);
+    parts.forEach(part => {
+      const pt = part.trim();
+      if (pt.length > 1 && !foundNames.has(pt) && additiveKeywords.test(pt)) {
+        const dbMatch = DB[pt];
+        if (dbMatch) {
+          if (!foundNames.has(pt)) { foundNames.add(pt); found.push({ name: pt, ...dbMatch }); }
+        } else if (!unknownItems.includes(pt)) {
+          unknownItems.push(pt);
+        }
+      }
+    });
+  });
+
+  renderResults(found, unknownItems);
+}
+
+function renderResults(found, unknownItems) {
   // カウント
   const cnt = { high:0, medium:0, low:0 };
-  known.forEach(a => { if (a.dbInfo) cnt[a.dbInfo.risk] = (cnt[a.dbInfo.risk] || 0) + 1; });
+  found.forEach(a => { cnt[a.risk] = (cnt[a.risk]||0)+1; });
 
-  document.getElementById('countHigh').textContent = cnt.high || 0;
-  document.getElementById('countMed').textContent = cnt.medium || 0;
-  document.getElementById('countLow').textContent = cnt.low || 0;
-  document.getElementById('countUnknown').textContent = unknown.length;
+  document.getElementById('cntH').textContent = cnt.high||0;
+  document.getElementById('cntM').textContent = cnt.medium||0;
+  document.getElementById('cntL').textContent = cnt.low||0;
+  document.getElementById('cntU').textContent = unknownItems.length;
 
   // サマリーバナー
-  const total = additives.length;
   const banner = document.getElementById('summaryBanner');
-  document.getElementById('summaryCount').textContent = total;
-  document.getElementById('summaryLabel').textContent = `種類の添加物を検出しました`;
   banner.className = 'summary-banner';
+  const total = found.length + unknownItems.length;
+  document.getElementById('summaryCount').textContent = total;
+  document.getElementById('summaryLabel').textContent = '種類の添加物を検出しました';
+
   if (total === 0) {
-    banner.classList.add('all-clear');
-    document.getElementById('summaryCount').textContent = '✅';
-    document.getElementById('summaryLabel').textContent = '添加物は検出されませんでした';
+    banner.classList.add('clear');
+    document.getElementById('summaryEmoji').textContent = '✅';
+    document.getElementById('summaryCount').textContent = '添加物なし';
+    document.getElementById('summaryLabel').textContent = 'データベース内の添加物は検出されませんでした';
   } else if (cnt.high > 0) {
-    banner.classList.add('has-risk');
+    banner.classList.add('risk');
+    document.getElementById('summaryEmoji').textContent = '⚠️';
   } else if (cnt.medium > 0) {
-    banner.classList.add('has-concern');
+    banner.classList.add('concern');
+    document.getElementById('summaryEmoji').textContent = '🔍';
   } else {
-    banner.classList.add('all-clear');
+    banner.classList.add('clear');
+    document.getElementById('summaryEmoji').textContent = '✅';
   }
 
   // 添加物カード（リスク高→中→低の順）
-  const sorted = [...known].sort((a, b) => {
-    const order = { high: 0, medium: 1, low: 2 };
-    return (order[a.dbInfo?.risk] ?? 3) - (order[b.dbInfo?.risk] ?? 3);
+  const sorted = [...found].sort((a,b)=>{
+    const o={high:0,medium:1,low:2};
+    return (o[a.risk]??3)-(o[b.risk]??3);
   });
 
   const list = document.getElementById('additiveList');
   list.innerHTML = '';
+  const RISK_LABEL = { high:'🔴 要注意', medium:'🟡 注意', low:'🟢 安全寄り' };
 
   sorted.forEach((item, i) => {
-    const db = item.dbInfo;
-    const risk = db?.risk || 'unknown';
-    const cfg = RISK_CONFIG[risk] || RISK_CONFIG.unknown;
-
-    const tags = (db?.tags || []).map(t => {
-      const isDanger = ['IARC分類','発がん性リスク','国際規制'].includes(t);
-      const isWarn = ['アレルギー','腸への影響','内分泌かく乱'].includes(t);
-      return `<span class="tag ${isDanger?'danger':isWarn?'warn':''}">${t}</span>`;
-    }).join('');
-
     const card = document.createElement('div');
-    card.className = `additive-card ${cfg.cls}`;
+    card.className = `additive-card ${item.risk||'unknown'}`;
+    const tags = (item.tags||[]).map(([t,c])=>`<span class="tag ${c}">${t}</span>`).join('');
     card.innerHTML = `
-      <div class="additive-header" onclick="toggleCard(this.parentElement)">
-        <div class="risk-badge">${cfg.emoji}</div>
-        <div class="additive-name-wrap">
+      <div class="additive-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="risk-icon">${item.emoji||'⚪'}</div>
+        <div class="additive-info">
           <div class="additive-name">${item.name}</div>
-          ${item.purpose ? `<span class="additive-purpose">${item.purpose}</span>` : ''}
+          <div class="additive-cat">${item.cat||''}</div>
         </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div class="risk-label-text">${cfg.label}</div>
+        <div class="risk-label-wrap">
+          <div class="risk-label-text">${RISK_LABEL[item.risk]||'⚪ 情報なし'}</div>
           <div class="chevron">▼</div>
         </div>
       </div>
       <div class="additive-body">
-        ${db ? `
-          <div class="info-row">
-            <div class="info-label">用途・分類</div>
-            <div class="info-value">${db.category || '—'}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">身体への影響（研究・報告）</div>
-            <div class="info-value">${db.effects || '—'}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">一日摂取許容量（ADI）</div>
-            <div class="info-value">${db.adi || '—'}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">根拠・出典</div>
-            <div class="info-value">${db.evidence || '—'}</div>
-          </div>
-          ${db.note ? `<div class="info-row"><div class="info-label">補足</div><div class="info-value">${db.note}</div></div>` : ''}
-          ${tags ? `<div class="tag-list">${tags}</div>` : ''}
-        ` : '<div class="info-value">詳細データが見つかりませんでした。</div>'}
-      </div>
-    `;
+        <div class="info-block">
+          <div class="info-lbl">身体への影響（研究・報告）</div>
+          <div class="info-val">${item.fx||'—'}</div>
+        </div>
+        <div class="info-block">
+          <div class="info-lbl">一日摂取許容量（ADI）</div>
+          <div class="info-val">${item.adi||'—'}</div>
+        </div>
+        <div class="info-block">
+          <div class="info-lbl">出典・根拠</div>
+          <div class="info-val">${item.src||'—'}</div>
+        </div>
+        ${item.note ? `<div class="info-block"><div class="info-lbl">補足</div><div class="info-val">${item.note}</div></div>` : ''}
+        ${tags ? `<div class="tag-row">${tags}</div>` : ''}
+      </div>`;
     list.appendChild(card);
   });
 
-  // 未登録リスト
-  if (unknown.length > 0) {
-    document.getElementById('unknownList').style.display = 'block';
-    document.getElementById('unknownItems').innerHTML = unknown.map(u =>
-      `<div class="unknown-item">⚪ ${u.rawName}</div>`
-    ).join('');
+  // 未登録
+  if (unknownItems.length > 0) {
+    document.getElementById('unknownBox').style.display = 'block';
+    document.getElementById('unknownItems').innerHTML =
+      unknownItems.map(u=>`<div class="unknown-item">⚪ ${u}</div>`).join('');
   } else {
-    document.getElementById('unknownList').style.display = 'none';
+    document.getElementById('unknownBox').style.display = 'none';
+  }
+
+  if (total === 0) {
+    list.innerHTML = `<div class="zero-result"><div class="big">🎉</div>この原材料リストには、データベースに登録されている添加物が見つかりませんでした。</div>`;
   }
 
   document.getElementById('results').style.display = 'block';
-  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function toggleCard(card) {
-  card.classList.toggle('open');
+  document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function resetApp() {
-  currentImageBase64 = null;
-  document.getElementById('previewContainer').style.display = 'none';
-  document.getElementById('previewImg').src = '';
   document.getElementById('results').style.display = 'none';
-  document.getElementById('errorBox').style.display = 'none';
-  document.getElementById('analyzeBtn').disabled = false;
-  document.getElementById('additiveList').innerHTML = '';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('ingredientInput').value = '';
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
 </script>
 
