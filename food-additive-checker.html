@@ -101,6 +101,71 @@
   .card-head-sub { font-size: 0.75rem; color: #888; margin-top: 1px; }
   .card-body { padding: 16px 20px 20px; }
 
+  /* タブ切替 */
+  .tab-bar { display:flex; gap:0; margin-bottom:16px; border-radius:10px; overflow:hidden; border:1.5px solid #b7dfc8; }
+  .tab-btn {
+    flex:1; padding:10px 6px; border:none; background:#f0fbf5;
+    font-size:0.85rem; font-weight:600; color:#888;
+    cursor:pointer; transition:all 0.2s; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+  }
+  .tab-btn.active { background:var(--green); color:white; }
+  .tab-btn:not(.active):hover { background:var(--green-pale); color:var(--green); }
+
+  /* 画像アップロードゾーン */
+  .drop-zone {
+    border:2px dashed #b7dfc8; border-radius:12px;
+    padding:28px 16px; text-align:center;
+    background:var(--green-pale); cursor:pointer;
+    transition:all 0.2s;
+  }
+  .drop-zone:hover, .drop-zone.drag-over { border-color:var(--green); background:#c8f0d8; }
+  .drop-zone-icon { font-size:2.4rem; margin-bottom:8px; }
+  .drop-zone-title { font-size:0.95rem; font-weight:700; color:var(--green); margin-bottom:4px; }
+  .drop-zone-sub { font-size:0.76rem; color:#888; }
+
+  .img-btn-row { display:flex; gap:10px; margin-top:12px; }
+  .img-btn {
+    flex:1; padding:11px 8px; border:none; border-radius:10px;
+    font-size:0.88rem; font-weight:700; cursor:pointer;
+    transition:all 0.2s; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .img-btn-cam { background:var(--green); color:white; }
+  .img-btn-cam:hover { background:#22543d; }
+  .img-btn-gal { background:#e8f5e9; color:var(--green); border:1.5px solid #b7dfc8; }
+  .img-btn-gal:hover { background:#c8f0d8; }
+
+  /* 画像プレビュー */
+  #imgPreviewWrap { display:none; margin-top:14px; }
+  #imgPreview {
+    width:100%; max-height:260px; object-fit:contain;
+    border-radius:10px; border:2px solid var(--green-pale);
+    display:block;
+  }
+
+  /* OCR進捗 */
+  #ocrProgress { display:none; margin-top:14px; }
+  .ocr-bar-track {
+    height:8px; background:#e0e0e0; border-radius:4px; overflow:hidden; margin-bottom:6px;
+  }
+  .ocr-bar-fill {
+    height:100%; background:linear-gradient(90deg,var(--green),var(--green-light));
+    border-radius:4px; width:0%; transition:width 0.3s;
+  }
+  .ocr-status { font-size:0.78rem; color:var(--green); text-align:center; }
+
+  .btn-ocr {
+    display:block; width:100%; margin-top:12px; padding:13px;
+    background:linear-gradient(135deg,#40916c,var(--green-light));
+    color:white; border:none; border-radius:10px;
+    font-size:0.97rem; font-weight:700; cursor:pointer;
+    font-family:inherit; transition:all 0.2s;
+    box-shadow:0 3px 12px rgba(45,106,79,0.3);
+  }
+  .btn-ocr:hover { transform:translateY(-1px); }
+  .btn-ocr:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
   /* 入力エリア */
   .input-area {
     width: 100%;
@@ -337,19 +402,58 @@
     </div>
     <div class="card-body">
 
-      <textarea class="input-area" id="ingredientInput" placeholder="例）砂糖、小麦粉、植物油脂、食塩、乳化剤（大豆レシチン）、酸化防止剤（BHT、BHA）、着色料（赤色40号）、保存料（ソルビン酸K）、甘味料（アスパルテーム・L-フェニルアラニン化合物）"></textarea>
-
-      <div class="input-hint">
-        💡 商品裏面の「原材料名」欄の文字をすべてコピーして貼り付けるか、直接入力してください。<br>
-        <span>添加物は括弧「（）」内の表記を含めると精度が上がります。</span>
+      <!-- タブ切替 -->
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabImg" onclick="switchTab('img')">📷 画像から読み取り</button>
+        <button class="tab-btn" id="tabText" onclick="switchTab('text')">📋 テキスト入力</button>
       </div>
 
-      <div style="font-size:0.78rem;color:#999;margin-top:12px;margin-bottom:4px;">▼ サンプルを試す</div>
-      <div class="sample-list">
-        <button class="sample-btn" onclick="setSample(0)">🍖 ウインナー</button>
-        <button class="sample-btn" onclick="setSample(1)">🥤 ダイエット飲料</button>
-        <button class="sample-btn" onclick="setSample(2)">🍜 インスタント麺</button>
-        <button class="sample-btn" onclick="setSample(3)">🍞 市販パン</button>
+      <!-- 画像タブ -->
+      <div id="panelImg">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileUpload').click()">
+          <div class="drop-zone-icon">🖼️</div>
+          <div class="drop-zone-title">ラベル画像をここにドロップ</div>
+          <div class="drop-zone-sub">またはタップして選択</div>
+        </div>
+        <input type="file" id="fileUpload" accept="image/*" style="display:none">
+
+        <div class="img-btn-row">
+          <button class="img-btn img-btn-cam" onclick="document.getElementById('camInput').click()">📸 カメラで撮影</button>
+          <button class="img-btn img-btn-gal" onclick="document.getElementById('fileUpload').click()">🖼️ ギャラリー</button>
+        </div>
+        <input type="file" id="camInput" accept="image/*" capture="environment" style="display:none">
+
+        <div id="imgPreviewWrap">
+          <img id="imgPreview" src="" alt="プレビュー">
+          <div id="ocrProgress">
+            <div style="margin-top:12px;">
+              <div class="ocr-bar-track"><div class="ocr-bar-fill" id="ocrBar"></div></div>
+              <div class="ocr-status" id="ocrStatus">読み取り準備中…</div>
+            </div>
+          </div>
+          <button class="btn-ocr" id="btnOcr" onclick="runOCR()">🔤 文字を読み取る（OCR）</button>
+        </div>
+
+        <div style="font-size:0.74rem;color:#aaa;margin-top:10px;line-height:1.5;">
+          💡 商品裏面の原材料名欄を正面から撮影してください。読み取り後、テキストタブで修正できます。<br>
+          ※日本語OCRのため、フォントや照明によっては誤読が生じる場合があります。
+        </div>
+      </div>
+
+      <!-- テキストタブ -->
+      <div id="panelText" style="display:none">
+        <textarea class="input-area" id="ingredientInput" placeholder="例）砂糖、小麦粉、植物油脂、食塩、乳化剤（大豆レシチン）、酸化防止剤（BHT、BHA）、着色料（赤色40号）、保存料（ソルビン酸K）、甘味料（アスパルテーム・L-フェニルアラニン化合物）"></textarea>
+        <div class="input-hint">
+          💡 商品裏面の「原材料名」欄の文字をすべてコピー&ペーストするか、直接入力してください。<br>
+          <span>画像タブでOCR読み取り後、ここに自動入力されます。</span>
+        </div>
+        <div style="font-size:0.78rem;color:#999;margin-top:12px;margin-bottom:4px;">▼ サンプルを試す</div>
+        <div class="sample-list">
+          <button class="sample-btn" onclick="setSample(0)">🍖 ウインナー</button>
+          <button class="sample-btn" onclick="setSample(1)">🥤 ダイエット飲料</button>
+          <button class="sample-btn" onclick="setSample(2)">🍜 インスタント麺</button>
+          <button class="sample-btn" onclick="setSample(3)">🍞 市販パン</button>
+        </div>
       </div>
 
       <button class="btn-analyze" onclick="analyze()">🔬 添加物をチェックする</button>
@@ -906,5 +1010,103 @@ function resetApp() {
 }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+// ─── タブ切替 ───
+function switchTab(tab) {
+  const isImg = tab === 'img';
+  document.getElementById('tabImg').classList.toggle('active', isImg);
+  document.getElementById('tabText').classList.toggle('active', !isImg);
+  document.getElementById('panelImg').style.display = isImg ? 'block' : 'none';
+  document.getElementById('panelText').style.display = isImg ? 'none' : 'block';
+}
+
+// ─── 画像選択 ───
+let selectedFile = null;
+
+function setupImageInputs() {
+  ['fileUpload','camInput'].forEach(id => {
+    document.getElementById(id).addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) loadPreview(file);
+      e.target.value = '';
+    });
+  });
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadPreview(file);
+  });
+}
+
+function loadPreview(file) {
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('imgPreview').src = ev.target.result;
+    document.getElementById('imgPreviewWrap').style.display = 'block';
+    document.getElementById('ocrProgress').style.display = 'none';
+    document.getElementById('btnOcr').disabled = false;
+    document.getElementById('ocrBar').style.width = '0%';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── OCR実行 ───
+async function runOCR() {
+  if (!selectedFile) return;
+  const btn = document.getElementById('btnOcr');
+  btn.disabled = true;
+  btn.textContent = '読み取り中…';
+  document.getElementById('ocrProgress').style.display = 'block';
+  setOcrStatus('言語データを読み込み中…', 5);
+
+  try {
+    const worker = await Tesseract.createWorker('jpn', 1, {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          const pct = Math.round(m.progress * 90) + 5;
+          setOcrStatus(`文字を認識中… ${Math.round(m.progress*100)}%`, pct);
+        } else if (m.status === 'loading tesseract core') {
+          setOcrStatus('OCRエンジンを起動中…', 10);
+        } else if (m.status === 'loading language traineddata') {
+          setOcrStatus('日本語データを読み込み中…', 20);
+        }
+      }
+    });
+
+    setOcrStatus('画像を解析中…', 50);
+    const { data: { text } } = await worker.recognize(selectedFile);
+    await worker.terminate();
+
+    setOcrStatus('完了！テキストを反映しました ✅', 100);
+
+    // テキストエリアに反映して自動でテキストタブへ
+    const cleaned = text.replace(/\s+/g, ' ').trim();
+    document.getElementById('ingredientInput').value = cleaned;
+    setTimeout(() => {
+      switchTab('text');
+      document.getElementById('ingredientInput').scrollIntoView({ behavior:'smooth', block:'center' });
+      document.getElementById('ingredientInput').focus();
+    }, 800);
+  } catch (err) {
+    setOcrStatus('❌ 読み取りに失敗しました。別の画像をお試しください。', 0);
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔤 もう一度読み取る';
+  }
+}
+
+function setOcrStatus(msg, pct) {
+  document.getElementById('ocrStatus').textContent = msg;
+  document.getElementById('ocrBar').style.width = pct + '%';
+}
+
+setupImageInputs();
+</script>
 </body>
 </html>
