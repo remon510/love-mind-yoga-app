@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "puppeteer": "^25.2.1"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.53.0"
+  }
+}

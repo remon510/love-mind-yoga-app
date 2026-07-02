@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食品添加物チェッカー</title>
+<style>
+  :root {
+    --green: #2d6a4f;
+    --green-light: #52b788;
+    --green-pale: #d8f3dc;
+    --orange: #f4a261;
+    --red: #e63946;
+    --red-pale: #ffe0e0;
+    --yellow: #f9c74f;
+    --yellow-pale: #fff8e1;
+    --navy: #1d3557;
+    --gray: #6c757d;
+    --gray-light: #f8f9fa;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: linear-gradient(160deg, #e8f5e9 0%, #f0faf4 50%, #fffde7 100%);
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.7;
+  }
+
+  /* ヘッダー */
+  .header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--green) 100%);
+    color: white;
+    text-align: center;
+    padding: 36px 20px 52px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 36px;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,18 C360,36 1080,0 1440,18 L1440,36 L0,36 Z' fill='%23f0faf4'/%3E%3C/svg%3E") no-repeat bottom/cover;
+  }
+  .header-icon { font-size: 2.8rem; margin-bottom: 10px; }
+  .header h1 { font-size: clamp(1.5rem,5vw,2.2rem); font-weight: 800; margin-bottom: 8px; }
+  .header p { font-size: 0.9rem; opacity: 0.85; max-width: 480px; margin: 0 auto; }
+
+  /* コンテナ */
+  .container { max-width: 700px; margin: 0 auto; padding: 0 16px 60px; }
+
+  /* 注意書き */
+  .disclaimer {
+    background: #fff8e1;
+    border-left: 4px solid var(--yellow);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    margin: -16px 0 24px;
+    position: relative; z-index: 1;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    font-size: 0.8rem;
+    color: #5a4700;
+    line-height: 1.6;
+  }
+  .disclaimer strong { color: #c77700; }
+
+  /* カード共通 */
+  .card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .card-body { padding: 24px 20px; }
+
+  /* アップロードエリア */
+  .upload-area {
+    border: 2px dashed #b7dfc8;
+    border-radius: 14px;
+    padding: 36px 20px;
+    text-align: center;
+    background: var(--green-pale);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .upload-area:hover, .upload-area.drag-over {
+    border-color: var(--green-light);
+    background: #c8f0d8;
+  }
+  .upload-icon { font-size: 3rem; margin-bottom: 12px; }
+  .upload-title { font-size: 1.05rem; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+  .upload-subtitle { font-size: 0.82rem; color: #666; }
+  #fileInput { display: none; }
+
+  /* カメラボタン群 */
+  .btn-group { display: flex; gap: 10px; margin-top: 16px; }
+  .btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-camera { background: var(--green); color: white; }
+  .btn-camera:hover { background: #22543d; }
+  .btn-gallery { background: #e8f5e9; color: var(--green); }
+  .btn-gallery:hover { background: #c8f0d8; }
+  #cameraInput, #galleryInput { display: none; }
+
+  /* プレビュー画像 */
+  #previewContainer { display: none; margin-top: 16px; }
+  #previewImg {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 2px solid var(--green-pale);
+  }
+  .btn-analyze {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 16px rgba(45,106,79,0.35);
+    transition: all 0.2s;
+  }
+  .btn-analyze:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45,106,79,0.45); }
+  .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* ローディング */
+  #loading { display: none; text-align: center; padding: 30px; }
+  .spinner {
+    width: 50px; height: 50px;
+    border: 4px solid #d8f3dc;
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 0.95rem; color: var(--green); font-weight: 600; }
+  .loading-sub { font-size: 0.78rem; color: #888; margin-top: 4px; }
+
+  /* 結果エリア */
+  #results { display: none; }
+
+  /* サマリーバナー */
+  .summary-banner {
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .summary-banner.all-clear { background: linear-gradient(135deg, #d8f3dc, #e8f5e9); border: 2px solid #74c69d; }
+  .summary-banner.has-concern { background: linear-gradient(135deg, #fff8e1, #fff3cd); border: 2px solid var(--yellow); }
+  .summary-banner.has-risk { background: linear-gradient(135deg, var(--red-pale), #ffe8e8); border: 2px solid var(--red); }
+  .summary-count { font-size: 2.5rem; font-weight: 800; }
+  .summary-label { font-size: 0.85rem; color: #555; margin-top: 4px; }
+
+  /* リスク別カウント */
+  .risk-counts { display: flex; gap: 10px; margin: 16px 0; }
+  .risk-count-item {
+    flex: 1;
+    text-align: center;
+    background: white;
+    border-radius: 10px;
+    padding: 12px 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .risk-count-num { font-size: 1.6rem; font-weight: 800; }
+  .risk-count-label { font-size: 0.72rem; color: #666; margin-top: 2px; }
+
+  /* 添加物カード */
+  .additive-list { margin-top: 8px; }
+  .additive-card {
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .additive-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .risk-badge {
+    flex-shrink: 0;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .risk-high .additive-header { background: #fff0f0; }
+  .risk-high .risk-badge { background: #ffd5d5; }
+  .risk-medium .additive-header { background: #fff9e6; }
+  .risk-medium .risk-badge { background: #ffeeba; }
+  .risk-low .additive-header { background: #f0fbf4; }
+  .risk-low .risk-badge { background: #d0f0dc; }
+  .risk-unknown .additive-header { background: #f5f5f5; }
+  .risk-unknown .risk-badge { background: #e0e0e0; }
+
+  .additive-name-wrap { flex: 1; }
+  .additive-name { font-size: 0.97rem; font-weight: 700; color: var(--navy); }
+  .additive-purpose {
+    display: inline-block;
+    background: #eee;
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 0.72rem;
+    color: #555;
+    margin-top: 3px;
+  }
+  .risk-high .additive-purpose { background: #ffe0e0; color: #c0392b; }
+  .risk-medium .additive-purpose { background: #ffeeba; color: #856404; }
+  .risk-low .additive-purpose { background: #d0f0dc; color: #1a6b3c; }
+
+  .risk-label-text { font-size: 0.75rem; font-weight: 700; }
+  .risk-high .risk-label-text { color: var(--red); }
+  .risk-medium .risk-label-text { color: #d4890a; }
+  .risk-low .risk-label-text { color: var(--green); }
+  .risk-unknown .risk-label-text { color: #888; }
+
+  .chevron { font-size: 0.8rem; color: #aaa; transition: transform 0.2s; }
+  .additive-card.open .chevron { transform: rotate(180deg); }
+
+  .additive-body {
+    display: none;
+    padding: 14px 16px;
+    border-top: 1px solid #eee;
+    background: white;
+  }
+  .additive-card.open .additive-body { display: block; }
+
+  .info-row { margin-bottom: 10px; }
+  .info-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+  }
+  .info-value { font-size: 0.84rem; color: #333; line-height: 1.55; }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .tag {
+    background: #eee;
+    border-radius: 50px;
+    padding: 2px 10px;
+    font-size: 0.7rem;
+    color: #555;
+  }
+  .tag.danger { background: #ffd5d5; color: #c0392b; }
+  .tag.warn { background: #ffeeba; color: #856404; }
+
+  /* 未登録 */
+  .unknown-list {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 16px;
+  }
+  .unknown-title { font-size: 0.85rem; font-weight: 700; color: #888; margin-bottom: 8px; }
+  .unknown-item { font-size: 0.82rem; color: #999; padding: 3px 0; }
+
+  /* リセット */
+  .btn-reset {
+    display: block; width: 100%;
+    background: #f0f0f0; color: #555;
+    border: none; border-radius: 12px;
+    padding: 14px; font-size: 0.95rem;
+    cursor: pointer; margin-top: 16px;
+    transition: background 0.2s;
+  }
+  .btn-reset:hover { background: #e0e0e0; }
+
+  /* フッター注意書き */
+  .footer-disclaimer {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 24px;
+    font-size: 0.75rem;
+    color: #666;
+    line-height: 1.7;
+  }
+  .footer-disclaimer strong { color: #333; }
+
+  /* エラー表示 */
+  #errorBox { display: none; }
+  .error-card {
+    background: var(--red-pale);
+    border: 1px solid #f5c6cb;
+    border-radius: 12px;
+    padding: 18px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .error-icon { font-size: 2rem; margin-bottom: 8px; }
+  .error-msg { font-size: 0.9rem; color: #721c24; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🔍</div>
+  <h1>食品添加物チェッカー</h1>
+  <p>商品ラベルを撮影するだけで<br>含まれる添加物と身体への影響を表示します</p>
+</div>
+
+<div class="container">
+
+  <!-- 注意書き -->
+  <div class="disclaimer">
+    <strong>【重要】</strong> このアプリは食品添加物に関する<strong>参考情報の提供</strong>を目的としており、特定商品の安全性の保証・否定をするものではありません。
+    販売されている商品自体に問題があることを示すものではなく、<strong>購入・使用の判断はお客様ご自身でお願いします。</strong>
+    健康上の不安がある方は医師・管理栄養士にご相談ください。
+  </div>
+
+  <!-- アップロードカード -->
+  <div class="card" id="uploadCard">
+    <div class="card-body">
+
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">ラベル画像をここにドロップ</div>
+        <div class="upload-subtitle">またはタップして選択</div>
+        <input type="file" id="fileInput" accept="image/*">
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-camera" onclick="document.getElementById('cameraInput').click()">
+          📸 カメラで撮影
+        </button>
+        <button class="btn btn-gallery" onclick="document.getElementById('galleryInput').click()">
+          🖼️ ギャラリーから選択
+        </button>
+      </div>
+      <input type="file" id="cameraInput" accept="image/*" capture="environment">
+      <input type="file" id="galleryInput" accept="image/*">
+
+      <div id="previewContainer">
+        <img id="previewImg" src="" alt="プレビュー">
+        <button class="btn-analyze" id="analyzeBtn" onclick="analyzeImage()">
+          🔬 添加物を分析する
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div class="card" id="loading">
+    <div class="card-body">
+      <div id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">AIがラベルを読み取り中…</div>
+        <div class="loading-sub">Claude Vision APIで分析しています。少々お待ちください。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- エラー -->
+  <div id="errorBox">
+    <div class="error-card">
+      <div class="error-icon">⚠️</div>
+      <div class="error-msg" id="errorMsg">分析中にエラーが発生しました。</div>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div id="results">
+
+    <div class="card">
+      <div class="card-body">
+
+        <!-- サマリー -->
+        <div class="summary-banner" id="summaryBanner">
+          <div class="summary-count" id="summaryCount">0</div>
+          <div class="summary-label" id="summaryLabel">種類の添加物を検出</div>
+        </div>
+
+        <!-- リスク別カウント -->
+        <div class="risk-counts">
+          <div class="risk-count-item">
+            <div class="risk-count-num" id="countHigh" style="color:var(--red)">0</div>
+            <div class="risk-count-label">🔴 要注意</div>
+          </div>
+          <div class="risk-count-item">
+            <div class="risk-count-num" id="countMed" style="color:#d4890a">0</div>
+            <div class="risk-count-label">🟡 注意</div>
+          </div>
+          <div class="risk-count-item">
+            <div class="risk-count-num" id="countLow" style="color:var(--green)">0</div>
+            <div class="risk-count-label">🟢 比較的安全</div>
+          </div>
+          <div class="risk-count-item">
+            <div class="risk-count-num" id="countUnknown" style="color:#888">0</div>
+            <div class="risk-count-label">⚪ 情報なし</div>
+          </div>
+        </div>
+
+        <!-- 添加物リスト -->
+        <div class="additive-list" id="additiveList"></div>
+
+        <!-- 未登録リスト -->
+        <div class="unknown-list" id="unknownList" style="display:none">
+          <div class="unknown-title">⚪ データベース未登録の添加物</div>
+          <div id="unknownItems"></div>
+        </div>
+
+        <!-- 注意書き -->
+        <div class="footer-disclaimer">
+          <strong>【データソースについて】</strong><br>
+          このアプリの情報は以下の公的機関・研究の公開データをもとに作成しています：
+          食品安全委員会（FSCJ）、厚生労働省、WHO/FAO JECFA（合同食品添加物専門家委員会）、
+          EFSA（欧州食品安全機関）、IARC（国際がん研究機関）、FDA（米国食品医薬品局）。<br><br>
+          <strong>ADI（一日摂取許容量）以内の通常の食生活では、多くの添加物は安全とされています。</strong>
+          リスク表示は「大量・長期摂取」や「特定の疾患・体質を持つ方」への影響研究を含みます。
+          個別の判断は必ず医師・管理栄養士にご相談ください。<br><br>
+          <strong>販売されている商品が危険であることを示すものではありません。</strong>
+        </div>
+
+        <button class="btn-reset" onclick="resetApp()">🔄 別の商品をチェックする</button>
+      </div>
+    </div>
+
+  </div><!-- /results -->
+
+</div>
+
+<script>
+let currentImageBase64 = null;
+let currentMediaType = 'image/jpeg';
+
+// ファイル選択イベント登録
+['fileInput','cameraInput','galleryInput'].forEach(id => {
+  document.getElementById(id).addEventListener('change', handleFile);
+});
+
+// ドラッグ&ドロップ
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
+});
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+  e.target.value = '';
+}
+
+function processFile(file) {
+  const reader = new FileReader();
+  currentMediaType = file.type || 'image/jpeg';
+  reader.onload = ev => {
+    const result = ev.target.result;
+    currentImageBase64 = result.split(',')[1];
+    document.getElementById('previewImg').src = result;
+    document.getElementById('previewContainer').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('errorBox').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzeImage() {
+  if (!currentImageBase64) return;
+
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('errorBox').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/analyze-label', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64: currentImageBase64, mediaType: currentMediaType })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    document.getElementById('loading').style.display = 'none';
+
+    if (data.status === 'unclear') {
+      showError('画像が不鮮明か、ラベルが読み取れませんでした。より鮮明な写真を撮り直してください。');
+      return;
+    }
+
+    renderResults(data.additives || []);
+  } catch (err) {
+    document.getElementById('loading').style.display = 'none';
+    showError('分析中にエラーが発生しました。ネットワーク接続を確認し、再度お試しください。');
+    console.error(err);
+  } finally {
+    document.getElementById('analyzeBtn').disabled = false;
+  }
+}
+
+function showError(msg) {
+  document.getElementById('errorMsg').textContent = msg;
+  document.getElementById('errorBox').style.display = 'block';
+}
+
+const RISK_CONFIG = {
+  high:    { emoji: '🔴', label: '要注意', cls: 'risk-high' },
+  medium:  { emoji: '🟡', label: '注意',   cls: 'risk-medium' },
+  low:     { emoji: '🟢', label: '比較的安全', cls: 'risk-low' },
+  unknown: { emoji: '⚪', label: '情報なし', cls: 'risk-unknown' },
+};
+
+function renderResults(additives) {
+  const known = additives.filter(a => a.inDb);
+  const unknown = additives.filter(a => !a.inDb);
+
+  // カウント
+  const cnt = { high:0, medium:0, low:0 };
+  known.forEach(a => { if (a.dbInfo) cnt[a.dbInfo.risk] = (cnt[a.dbInfo.risk] || 0) + 1; });
+
+  document.getElementById('countHigh').textContent = cnt.high || 0;
+  document.getElementById('countMed').textContent = cnt.medium || 0;
+  document.getElementById('countLow').textContent = cnt.low || 0;
+  document.getElementById('countUnknown').textContent = unknown.length;
+
+  // サマリーバナー
+  const total = additives.length;
+  const banner = document.getElementById('summaryBanner');
+  document.getElementById('summaryCount').textContent = total;
+  document.getElementById('summaryLabel').textContent = `種類の添加物を検出しました`;
+  banner.className = 'summary-banner';
+  if (total === 0) {
+    banner.classList.add('all-clear');
+    document.getElementById('summaryCount').textContent = '✅';
+    document.getElementById('summaryLabel').textContent = '添加物は検出されませんでした';
+  } else if (cnt.high > 0) {
+    banner.classList.add('has-risk');
+  } else if (cnt.medium > 0) {
+    banner.classList.add('has-concern');
+  } else {
+    banner.classList.add('all-clear');
+  }
+
+  // 添加物カード（リスク高→中→低の順）
+  const sorted = [...known].sort((a, b) => {
+    const order = { high: 0, medium: 1, low: 2 };
+    return (order[a.dbInfo?.risk] ?? 3) - (order[b.dbInfo?.risk] ?? 3);
+  });
+
+  const list = document.getElementById('additiveList');
+  list.innerHTML = '';
+
+  sorted.forEach((item, i) => {
+    const db = item.dbInfo;
+    const risk = db?.risk || 'unknown';
+    const cfg = RISK_CONFIG[risk] || RISK_CONFIG.unknown;
+
+    const tags = (db?.tags || []).map(t => {
+      const isDanger = ['IARC分類','発がん性リスク','国際規制'].includes(t);
+      const isWarn = ['アレルギー','腸への影響','内分泌かく乱'].includes(t);
+      return `<span class="tag ${isDanger?'danger':isWarn?'warn':''}">${t}</span>`;
+    }).join('');
+
+    const card = document.createElement('div');
+    card.className = `additive-card ${cfg.cls}`;
+    card.innerHTML = `
+      <div class="additive-header" onclick="toggleCard(this.parentElement)">
+        <div class="risk-badge">${cfg.emoji}</div>
+        <div class="additive-name-wrap">
+          <div class="additive-name">${item.name}</div>
+          ${item.purpose ? `<span class="additive-purpose">${item.purpose}</span>` : ''}
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="risk-label-text">${cfg.label}</div>
+          <div class="chevron">▼</div>
+        </div>
+      </div>
+      <div class="additive-body">
+        ${db ? `
+          <div class="info-row">
+            <div class="info-label">用途・分類</div>
+            <div class="info-value">${db.category || '—'}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">身体への影響（研究・報告）</div>
+            <div class="info-value">${db.effects || '—'}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">一日摂取許容量（ADI）</div>
+            <div class="info-value">${db.adi || '—'}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">根拠・出典</div>
+            <div class="info-value">${db.evidence || '—'}</div>
+          </div>
+          ${db.note ? `<div class="info-row"><div class="info-label">補足</div><div class="info-value">${db.note}</div></div>` : ''}
+          ${tags ? `<div class="tag-list">${tags}</div>` : ''}
+        ` : '<div class="info-value">詳細データが見つかりませんでした。</div>'}
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  // 未登録リスト
+  if (unknown.length > 0) {
+    document.getElementById('unknownList').style.display = 'block';
+    document.getElementById('unknownItems').innerHTML = unknown.map(u =>
+      `<div class="unknown-item">⚪ ${u.rawName}</div>`
+    ).join('');
+  } else {
+    document.getElementById('unknownList').style.display = 'none';
+  }
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleCard(card) {
+  card.classList.toggle('open');
+}
+
+function resetApp() {
+  currentImageBase64 = null;
+  document.getElementById('previewContainer').style.display = 'none';
+  document.getElementById('previewImg').src = '';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('analyzeBtn').disabled = false;
+  document.getElementById('additiveList').innerHTML = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
