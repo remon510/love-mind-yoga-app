@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パーソナルカラー診断｜あなたに似合う色を見つけよう</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500&display=swap');
+
+    :root {
+      --bg: linear-gradient(135deg, #fef3f8 0%, #f3effe 45%, #eef6ff 100%);
+      --card-bg: rgba(255,255,255,0.75);
+      --card-border: rgba(210,190,230,0.28);
+      --primary: #c898d8;
+      --primary-light: #f0e2fc;
+      --warm: #e8a8c0;
+      --text-dark: #4a3058;
+      --text-mid: #7a5878;
+      --text-light: #aa8aaa;
+      --shadow: 0 8px 36px rgba(160,120,200,0.15);
+      --shadow-hover: 0 14px 44px rgba(160,120,200,0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* 背景装飾 */
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(60px);
+      opacity: 0.22;
+    }
+    .bg-orb-1 { width: 420px; height: 420px; background: #e8b8f0; top: -80px; left: -80px; }
+    .bg-orb-2 { width: 350px; height: 350px; background: #b8d8f8; bottom: -60px; right: -60px; }
+    .bg-orb-3 { width: 260px; height: 260px; background: #f8d8b8; top: 40%; left: 60%; }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      border-radius: 30px;
+      padding: 46px 46px 42px;
+      box-shadow: var(--shadow);
+    }
+    .screen { animation: fadeUp 0.55s ease both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ロゴ */
+    .logo-area { text-align: center; margin-bottom: 30px; }
+    .logo-gem {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 10px;
+      animation: gemFloat 4s ease-in-out infinite;
+    }
+    @keyframes gemFloat {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+    .logo-title {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #c878d8, #8878d8, #78a8e8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.08em;
+    }
+    .logo-sub { font-size: 12.5px; color: var(--text-light); margin-top: 5px; letter-spacing: 0.14em; }
+
+    /* ウェルカム */
+    .intro-text {
+      text-align: center;
+      font-size: 15px;
+      line-height: 2;
+      color: var(--text-mid);
+      margin-bottom: 28px;
+    }
+    .intro-text strong { color: var(--primary); font-weight: 500; }
+
+    .season-preview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .season-chip {
+      border-radius: 16px;
+      padding: 14px 8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: white;
+      line-height: 1.6;
+    }
+    .season-chip span { display: block; font-size: 22px; margin-bottom: 4px; }
+    .chip-spring { background: linear-gradient(135deg, #f8c8a8, #f0a0a0); }
+    .chip-summer { background: linear-gradient(135deg, #c8b8f0, #a8c8e8); }
+    .chip-autumn { background: linear-gradient(135deg, #c89860, #a87840); }
+    .chip-winter { background: linear-gradient(135deg, #7878b8, #404088); }
+
+    /* ボタン */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      letter-spacing: 0.05em;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #c898d8, #9888d8, #88a8e8);
+      color: white;
+      box-shadow: 0 4px 20px rgba(160,120,200,0.38);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(160,120,200,0.48); }
+    .btn-secondary { background: var(--primary-light); color: var(--text-mid); margin-top: 12px; }
+    .btn-secondary:hover { background: #e0c8f8; }
+    .btn-back {
+      background: rgba(200,180,230,0.18);
+      color: var(--text-light);
+      flex: 0 0 auto !important;
+      width: auto !important;
+      padding: 16px 22px;
+    }
+    .btn-back:hover { background: rgba(200,180,230,0.35); }
+
+    /* プログレス */
+    .progress-area { margin-bottom: 26px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-light); margin-bottom: 8px; }
+    .progress-bar-bg { height: 6px; background: var(--primary-light); border-radius: 3px; overflow: hidden; }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c898d8, #9888d8, #88a8e8);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* 質問 */
+    .q-num { font-size: 11px; color: var(--text-light); letter-spacing: 0.14em; margin-bottom: 6px; }
+    .q-text { font-size: 18px; font-weight: 500; color: var(--text-dark); line-height: 1.65; margin-bottom: 6px; }
+    .q-hint { font-size: 13px; color: var(--text-light); margin-bottom: 22px; }
+
+    .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+    .choice-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 18px;
+      border: 1.5px solid var(--card-border);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.55);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      color: var(--text-mid);
+      text-align: left;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+    .choice-btn:hover { border-color: var(--primary); background: var(--primary-light); color: var(--text-dark); transform: translateX(4px); }
+    .choice-btn.selected { border-color: var(--primary); background: var(--primary-light); color: var(--text-dark); box-shadow: 0 2px 12px rgba(200,150,220,0.2); }
+    .choice-swatch {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.8);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+
+    .nav-buttons { display: flex; gap: 12px; }
+    .nav-buttons .btn { flex: 1; }
+
+    /* ローディング */
+    #screen-loading { text-align: center; padding: 60px 44px; }
+    .loader-gem {
+      font-size: 56px;
+      display: block;
+      margin-bottom: 22px;
+      animation: gemSpin 2s ease-in-out infinite;
+    }
+    @keyframes gemSpin {
+      0%,100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.1) rotate(-8deg); }
+      75% { transform: scale(1.1) rotate(8deg); }
+    }
+    .loader-text { font-size: 15px; color: var(--text-mid); line-height: 2.2; }
+    .loader-dots span {
+      display: inline-block;
+      animation: dot 1.4s ease-in-out infinite both;
+      font-size: 20px;
+      color: var(--primary);
+    }
+    .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot { 0%,80%,100% { transform:scale(0.5); opacity:0.4; } 40% { transform:scale(1); opacity:1; } }
+
+    /* 結果 */
+    .result-hero {
+      text-align: center;
+      margin-bottom: 28px;
+      padding: 32px 24px;
+      border-radius: 24px;
+    }
+    .result-season-icon { font-size: 64px; display: block; margin-bottom: 10px; animation: gemFloat 3s ease-in-out infinite; }
+    .result-season-label { font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 0.18em; margin-bottom: 6px; }
+    .result-season-name {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .result-season-en { font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 0.2em; }
+    .result-keyword-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .result-keyword-chip {
+      background: rgba(255,255,255,0.25);
+      color: white;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      backdrop-filter: blur(6px);
+    }
+
+    .result-message {
+      background: rgba(255,255,255,0.75);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 16px 16px 0;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      font-size: 14.5px;
+      line-height: 1.9;
+      color: var(--text-mid);
+    }
+    .result-message p + p { margin-top: 10px; }
+
+    /* カラーパレット */
+    .palette-section { margin-bottom: 24px; }
+    .section-title {
+      font-size: 12px;
+      color: var(--text-light);
+      letter-spacing: 0.14em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--card-border); }
+
+    .palette-group { margin-bottom: 18px; }
+    .palette-group-label { font-size: 12px; color: var(--text-mid); font-weight: 500; margin-bottom: 10px; }
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .swatch-item { text-align: center; }
+    .swatch-circle {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.9);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+      margin: 0 auto 5px;
+      transition: transform 0.2s;
+      cursor: default;
+    }
+    .swatch-circle:hover { transform: scale(1.12); }
+    .swatch-name { font-size: 10px; color: var(--text-light); white-space: nowrap; }
+
+    /* アドバイスカード */
+    .advice-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .advice-card {
+      background: rgba(255,255,255,0.62);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 17px 20px;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .advice-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+    .advice-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .advice-body { flex: 1; }
+    .advice-title { font-size: 14px; font-weight: 500; color: var(--text-dark); margin-bottom: 4px; }
+    .advice-text { font-size: 13px; color: var(--text-mid); line-height: 1.75; }
+    .advice-tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 10px;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+    .tag-fashion { background: #f0e2fc; color: #7838a8; }
+    .tag-makeup  { background: #fce2ec; color: #a83858; }
+    .tag-acc     { background: #e2ecfc; color: #3858a8; }
+    .tag-ng      { background: #fce8e2; color: #a85838; }
+
+    /* LINE */
+    .line-cta {
+      background: linear-gradient(135deg, #e8f5e8, #d5edd5);
+      border: 1px solid rgba(0,185,0,0.18);
+      border-radius: 20px;
+      padding: 22px 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .line-cta-text { font-size: 13px; color: #4a7a4a; margin-bottom: 12px; font-weight: 500; }
+    .line-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #06C755;
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      padding: 13px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      transition: all 0.25s;
+      box-shadow: 0 4px 16px rgba(6,199,85,0.35);
+      margin-bottom: 10px;
+    }
+    .line-cta-btn:hover { background: #05b34c; transform: translateY(-2px); box-shadow: 0 6px 22px rgba(6,199,85,0.45); }
+    .line-cta-sub { font-size: 11.5px; color: #6a8a6a; }
+
+    .footer-note { text-align: center; font-size: 11.5px; color: var(--text-light); margin-top: 16px; line-height: 1.9; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 500px) {
+      .card { padding: 30px 22px 26px; }
+      .q-text { font-size: 16px; }
+      .season-preview { grid-template-columns: repeat(2, 1fr); }
+      .result-season-name { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<div class="container">
+
+  <!-- ウェルカム -->
+  <div class="card screen" id="screen-welcome">
+    <div class="logo-area">
+      <span class="logo-gem">💎</span>
+      <div class="logo-title">パーソナルカラー診断</div>
+      <div class="logo-sub">YOUR COLOR SEASON</div>
+    </div>
+    <p class="intro-text">
+      あなたを<strong>最高に輝かせる色</strong>、知っていますか？<br><br>
+      8つの質問に答えるだけで、<strong>生まれ持ったパーソナルカラー</strong>を診断。
+      似合う色・メイク・ファッションのアドバイスをお届けします。
+    </p>
+    <div class="season-preview">
+      <div class="season-chip chip-spring"><span>🌸</span>Spring<br>イエベ春</div>
+      <div class="season-chip chip-summer"><span>🌊</span>Summer<br>ブルベ夏</div>
+      <div class="season-chip chip-autumn"><span>🍂</span>Autumn<br>イエベ秋</div>
+      <div class="season-chip chip-winter"><span>❄️</span>Winter<br>ブルベ冬</div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">✨ 診断スタート</button>
+  </div>
+
+  <!-- 質問 -->
+  <div class="card screen hidden" id="screen-quiz">
+    <div class="logo-area" style="margin-bottom:18px;">
+      <span class="logo-gem" style="font-size:30px;margin-bottom:6px;">💎</span>
+      <div class="logo-title" style="font-size:15px;">パーソナルカラー診断</div>
+    </div>
+    <div class="progress-area">
+      <div class="progress-label">
+        <span id="progress-text">質問 1 / 8</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="q-num" id="q-num">QUESTION 01</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-hint" id="q-hint"></div>
+    <div class="choices" id="q-choices"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-back" id="btn-back" onclick="prevQ()">← 戻る</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQ()" disabled>次へ →</button>
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div class="card screen hidden" id="screen-loading">
+    <span class="loader-gem">🔮</span>
+    <p class="loader-text">
+      あなたのパーソナルカラーを<br>分析しています<br><br>
+      <span class="loader-dots"><span>•</span><span>•</span><span>•</span></span>
+    </p>
+  </div>
+
+  <!-- 結果 -->
+  <div class="card screen hidden" id="screen-result">
+    <div class="result-hero" id="r-hero">
+      <span class="result-season-icon" id="r-icon"></span>
+      <div class="result-season-label">あなたのパーソナルカラーは</div>
+      <div class="result-season-name" id="r-name"></div>
+      <div class="result-season-en" id="r-en"></div>
+      <div class="result-keyword-chips" id="r-keywords"></div>
+    </div>
+
+    <div class="result-message" id="r-message"></div>
+
+    <div class="section-title">ベストカラーパレット</div>
+    <div class="palette-section">
+      <div class="palette-group">
+        <div class="palette-group-label">✨ あなたに映えるカラー</div>
+        <div class="swatches" id="r-best-swatches"></div>
+      </div>
+      <div class="palette-group">
+        <div class="palette-group-label">🚫 なるべく避けたいカラー</div>
+        <div class="swatches" id="r-ng-swatches"></div>
+      </div>
+    </div>
+
+    <div class="section-title">スタイリングアドバイス</div>
+    <div class="advice-cards" id="r-advice"></div>
+
+    <div class="line-cta">
+      <div class="line-cta-text">あなたに似合うスタイルをもっと詳しく知りたい方へ</div>
+      <a class="line-cta-btn" href="https://line.me/R/ti/p/@255knvri?oat_content=url&ts=08021132" target="_blank" rel="noopener">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.19 1.7 6.02 4.32 7.78-.18.64-.66 2.33-.76 2.69-.12.44.16.43.34.31.14-.09 2.22-1.47 3.12-2.07.64.09 1.3.14 1.98.14 5.52 0 10-4.02 10-9S17.52 2 12 2z"/></svg>
+        LINE公式アカウントで相談する
+      </a>
+      <div class="line-cta-sub">パーソナルスタイリストに直接つながれます</div>
+    </div>
+
+    <button class="btn btn-primary" onclick="retake()" style="margin-bottom:12px;">もう一度診断する</button>
+    <button class="btn btn-secondary" onclick="copyResult()">結果をコピーする 📋</button>
+
+    <div class="footer-note">
+      パーソナルカラーは生まれ持った肌・髪・瞳の色調を基に診断しています。<br>
+      メイクや日焼けの状態により結果が変わる場合があります 💎
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== 質問データ =====
+const Q = [
+  {
+    text: '素肌の色調はどちらに近いですか？',
+    hint: 'メイクをしていない状態の、顔や腕の素肌で判断してください',
+    choices: [
+      { swatch: '#f5d5b8', text: '明るくて黄みがかっている（象牙色・クリーム色）',        scores: { sp:3, su:0, au:1, wi:0 } },
+      { swatch: '#f0c0c0', text: 'ピンクがかって透き通るような色白',                    scores: { sp:0, su:3, au:0, wi:1 } },
+      { swatch: '#c8a870', text: 'オリーブ系・健康的な黄みのある小麦色',                scores: { sp:1, su:0, au:3, wi:0 } },
+      { swatch: '#e0d0d8', text: '青みがかった白・紫がかったような色白',                 scores: { sp:0, su:1, au:0, wi:3 } },
+    ]
+  },
+  {
+    text: '地毛（染める前）の色はどれに近いですか？',
+    hint: '生まれつきの髪の色を思い出してみてください',
+    choices: [
+      { swatch: '#c89060', text: '明るいブラウン・赤みやオレンジみのあるブラウン',       scores: { sp:3, su:0, au:1, wi:0 } },
+      { swatch: '#9898a8', text: 'アッシュ系・灰みがかったソフトなブラウン〜ブラック',   scores: { sp:0, su:3, au:0, wi:1 } },
+      { swatch: '#706050', text: '暗めのブラウン・赤みがかったブラック',                 scores: { sp:0, su:0, au:3, wi:1 } },
+      { swatch: '#302030', text: '青みがかったブラック・深くて艶のある真っ黒',           scores: { sp:0, su:1, au:0, wi:3 } },
+    ]
+  },
+  {
+    text: '瞳（虹彩）の色はどれに近いですか？',
+    hint: '光のあたる場所でよく観察してみてください',
+    choices: [
+      { swatch: '#b08850', text: '明るめのブラウン・ゴールドがかったヘーゼル',           scores: { sp:3, su:0, au:1, wi:0 } },
+      { swatch: '#908898', text: 'やわらかいブラウン・グレーがかったソフトな色',         scores: { sp:0, su:3, au:0, wi:0 } },
+      { swatch: '#604830', text: '深みのある濃いブラウン・こげ茶',                      scores: { sp:0, su:0, au:3, wi:1 } },
+      { swatch: '#201820', text: '澄んだブラック・深くクリアな暗い色',                  scores: { sp:0, su:0, au:0, wi:3 } },
+    ]
+  },
+  {
+    text: '日焼けすると、肌はどうなりますか？',
+    hint: '普段の傾向をイメージしてください',
+    choices: [
+      { swatch: '#ffb8a8', text: 'すぐ赤くなり、剥けやすい。色白のまま焼けにくい',       scores: { sp:1, su:3, au:0, wi:0 } },
+      { swatch: '#f0c8a0', text: '少し赤みが出るが、徐々にキレイに焼ける',               scores: { sp:3, su:0, au:1, wi:0 } },
+      { swatch: '#c89060', text: '赤みが出ずにムラなくゴールデンに焼ける',               scores: { sp:0, su:0, au:3, wi:0 } },
+      { swatch: '#806050', text: '赤みなしで、一気に深い褐色になる',                    scores: { sp:0, su:0, au:1, wi:3 } },
+    ]
+  },
+  {
+    text: 'アクセサリーはゴールドとシルバー、どちらが顔映りがいいですか？',
+    hint: '実際につけてみて、顔色が良く見える方を選んでください',
+    choices: [
+      { swatch: '#f0d060', text: 'ゴールドが断然しっくりくる・顔が明るく見える',         scores: { sp:2, su:0, au:2, wi:0 } },
+      { swatch: '#d0d8e0', text: 'シルバーやプラチナが断然似合う',                      scores: { sp:0, su:2, au:0, wi:2 } },
+      { swatch: '#e8d898', text: 'どちらも似合う（ゴールドが少し馴染む気がする）',        scores: { sp:2, su:1, au:1, wi:0 } },
+      { swatch: '#c8d0e0', text: 'どちらも似合う（シルバーが少し馴染む気がする）',        scores: { sp:0, su:1, au:0, wi:2 } },
+    ]
+  },
+  {
+    text: '次のうち、着ると顔色が明るく見える色はどれですか？',
+    hint: '洋服や布を顔に当ててみた時のイメージで選んでください',
+    choices: [
+      { swatch: '#f09878', text: 'コーラル・サーモン・ピーチ・温かみのあるオレンジ系',   scores: { sp:3, su:0, au:0, wi:0 } },
+      { swatch: '#c8a8d8', text: 'ラベンダー・ローズ・くすんだピンク・スモーキーブルー', scores: { sp:0, su:3, au:0, wi:0 } },
+      { swatch: '#a87840', text: 'テラコッタ・カーキ・マスタード・バーントオレンジ',     scores: { sp:0, su:0, au:3, wi:0 } },
+      { swatch: '#6060b0', text: 'ロイヤルブルー・ショッキングピンク・赤・白・黒',        scores: { sp:0, su:0, au:0, wi:3 } },
+    ]
+  },
+  {
+    text: 'チークやリップを選ぶなら、どれが一番しっくりきますか？',
+    hint: '実際につけてみて顔色が良く見えた・似合うと感じた色系統',
+    choices: [
+      { swatch: '#f0a080', text: 'コーラルピンク・サーモン・明るいオレンジピンク',       scores: { sp:3, su:0, au:0, wi:0 } },
+      { swatch: '#d890b0', text: 'ソフトローズ・ライラックピンク・モーヴ',               scores: { sp:0, su:3, au:0, wi:0 } },
+      { swatch: '#c86040', text: 'テラコッタ・ブリックレッド・ディープオレンジ',          scores: { sp:0, su:0, au:3, wi:0 } },
+      { swatch: '#a03060', text: 'バーガンディ・フューシャ・ビビッドレッド・プラム',     scores: { sp:0, su:0, au:0, wi:3 } },
+    ]
+  },
+  {
+    text: '逆に、着ると顔が疲れた・暗く見える色は？',
+    hint: '苦手だと感じる色のゾーンを教えてください',
+    choices: [
+      { swatch: '#404040', text: '真っ黒・ネイビー・モノクロ・ダークな色全般',           scores: { sp:3, su:0, au:0, wi:0 } },
+      { swatch: '#f0c860', text: 'オレンジ・イエロー・鮮やかすぎる色・強い暖色',         scores: { sp:0, su:3, au:0, wi:0 } },
+      { swatch: '#f0f0f0', text: '真っ白・蛍光色・ビビッドカラー・ポップすぎる色',        scores: { sp:0, su:0, au:3, wi:0 } },
+      { swatch: '#988060', text: 'くすみカラー・カーキ・マスタード・ベージュ系',          scores: { sp:0, su:0, au:0, wi:3 } },
+    ]
+  },
+];
+
+// ===== 結果データ =====
+const SEASONS = {
+  sp: {
+    name: 'イエベ春',
+    en: 'Spring / Yellow Base',
+    icon: '🌸',
+    hero: 'linear-gradient(135deg, #f8c8a0, #f0a0a0, #f8d880)',
+    keywords: ['明るい', '温かみ', 'フレッシュ', '可愛らし'],
+    message: '<p>あなたのパーソナルカラーは<strong>イエベ春（スプリング）</strong>。黄みを帯びた明るい肌、ゴールドがかった瞳と髪が特徴で、春の花のようなフレッシュで温かみのある色が最もお似合いです。</p><p>コーラル・ピーチ・アプリコットなど、明るく鮮やかな暖色系を纏うと顔色がパッと輝きます。逆に暗く重い色やくすみカラーは顔色を沈ませてしまうので要注意。</p>',
+    bestColors: [
+      { color: '#f5a882', name: 'コーラル' },
+      { color: '#f8c8a0', name: 'ピーチ' },
+      { color: '#f8d880', name: 'バターイエロー' },
+      { color: '#98d8a8', name: 'ミントグリーン' },
+      { color: '#f0a0c0', name: 'コーラルピンク' },
+      { color: '#e8d8a0', name: 'クリームベージュ' },
+      { color: '#78c8d8', name: 'ターコイズ' },
+      { color: '#f8e8c8', name: 'アイボリー' },
+    ],
+    ngColors: [
+      { color: '#202020', name: 'ブラック' },
+      { color: '#303060', name: 'ネイビー' },
+      { color: '#806888', name: 'グレイッシュパープル' },
+      { color: '#c0b8c0', name: 'グレー' },
+    ],
+    advices: [
+      { icon: '👗', bg: '#f0e2fc', title: 'ファッション', text: '明るいコーラル・ペールオレンジ・ライムグリーン・ウォームベージュが得意色。白を使うならアイボリー系を選ぶと顔映りが良くなります。重くなりすぎないよう、暗い色はなるべく顔から遠ざけて。', tag: 'tag-fashion', tagText: 'ファッション' },
+      { icon: '💄', bg: '#fce2ec', title: 'メイクアップ', text: 'リップ・チークはコーラル・サーモン・ピーチが鉄板。アイシャドウはブラウン・オレンジ・ゴールドを使うと目元が際立ちます。ファンデは黄みよりの明るいトーンで選びましょう。', tag: 'tag-makeup', tagText: 'メイク' },
+      { icon: '💍', bg: '#e2ecfc', title: 'アクセサリー', text: 'ゴールドが顔色を一番明るく見せます。コーラル・ターコイズ・グリーン系の天然石もよく似合います。シルバーやプラチナは、少し浮いて見えることがあるので要注意。', tag: 'tag-acc', tagText: 'アクセ' },
+    ]
+  },
+  su: {
+    name: 'ブルベ夏',
+    en: 'Summer / Blue Base',
+    icon: '🌊',
+    hero: 'linear-gradient(135deg, #c8c0f0, #a8c8e8, #d8b8e0)',
+    keywords: ['上品', 'やわらか', 'エレガント', '涼しげ'],
+    message: '<p>あなたのパーソナルカラーは<strong>ブルベ夏（サマー）</strong>。青みを帯びた肌、ソフトなグレーがかった髪と瞳が特徴で、ラベンダー・ローズ・くすみピンクなど、穏やかでエレガントな色が最もお似合いです。</p><p>くすみがかったパステル系やスモーキーカラーを纏うと、ふんわりと上品な雰囲気に。鮮やかすぎる色やオレンジ・イエロー系は、顔色が黄ばんで見えることがあります。</p>',
+    bestColors: [
+      { color: '#c8a8d8', name: 'ラベンダー' },
+      { color: '#d8b0c8', name: 'モーヴピンク' },
+      { color: '#a8c8d8', name: 'パウダーブルー' },
+      { color: '#c8d8c8', name: 'スモーキーグリーン' },
+      { color: '#e0c8d8', name: 'ダスティローズ' },
+      { color: '#d0c8e0', name: 'パープルグレー' },
+      { color: '#b0c8b8', name: 'セージグリーン' },
+      { color: '#f0eaf0', name: 'ラベンダーホワイト' },
+    ],
+    ngColors: [
+      { color: '#f09850', name: 'オレンジ' },
+      { color: '#f0d040', name: 'ビビッドイエロー' },
+      { color: '#e87038', name: 'テラコッタ' },
+      { color: '#c89050', name: 'キャメル' },
+    ],
+    advices: [
+      { icon: '👗', bg: '#f0e2fc', title: 'ファッション', text: 'スモーキーピンク・ラベンダー・グレーブルー・モーブ系が得意色。白はピュアホワイトより「オフホワイト・ラベンダーホワイト」が肌なじみ◎。黒よりもチャコールグレー・ネイビーの方が上品に見えます。', tag: 'tag-fashion', tagText: 'ファッション' },
+      { icon: '💄', bg: '#fce2ec', title: 'メイクアップ', text: 'リップはローズ・ベリー・ライラック系が顔映りを格上げ。チークはモーブピンク・くすみローズが得意。アイシャドウはグレーブラウン・ラベンダーで透明感を演出して。', tag: 'tag-makeup', tagText: 'メイク' },
+      { icon: '💍', bg: '#e2ecfc', title: 'アクセサリー', text: 'シルバー・プラチナが肌の透明感を最大限に引き出します。パール、ローズクォーツ、アメジストなどの天然石も相性抜群。ゴールドは浮いて見えることがあるので少量使いが吉。', tag: 'tag-acc', tagText: 'アクセ' },
+    ]
+  },
+  au: {
+    name: 'イエベ秋',
+    en: 'Autumn / Yellow Base',
+    icon: '🍂',
+    hero: 'linear-gradient(135deg, #c89058, #a86838, #d8b060)',
+    keywords: ['深み', '温かみ', 'シック', 'ナチュラル'],
+    message: '<p>あなたのパーソナルカラーは<strong>イエベ秋（オータム）</strong>。黄みを帯びた深みのある肌、こげ茶〜ブラックの深い瞳と髪が特徴で、大地の色のようなリッチで温かみのある色が最もお似合いです。</p><p>テラコッタ・マスタード・カーキ・バーントオレンジなど、アーシーで深みのある色を纏うと、他の誰にも出せない大人の色気と存在感が際立ちます。</p>',
+    bestColors: [
+      { color: '#c07048', name: 'テラコッタ' },
+      { color: '#c89828', name: 'マスタード' },
+      { color: '#788850', name: 'オリーブ' },
+      { color: '#a86840', name: 'バーントオレンジ' },
+      { color: '#906858', name: 'モカブラウン' },
+      { color: '#c8a060', name: 'キャメル' },
+      { color: '#805840', name: 'チョコレート' },
+      { color: '#986050', name: 'コッパー' },
+    ],
+    ngColors: [
+      { color: '#f0f0f8', name: 'ホワイト' },
+      { color: '#d0a8d8', name: 'パステルパープル' },
+      { color: '#a0d0f0', name: 'パウダーブルー' },
+      { color: '#f0c8d8', name: 'ライトピンク' },
+    ],
+    advices: [
+      { icon: '👗', bg: '#f0e2fc', title: 'ファッション', text: 'テラコッタ・オリーブ・キャメル・バーガンディが得意色。白は使うなら「オフホワイト・クリーム」に、黒は使うなら「ダークブラウン・チョコレート」の代わりに使うと自然に馴染みます。', tag: 'tag-fashion', tagText: 'ファッション' },
+      { icon: '💄', bg: '#fce2ec', title: 'メイクアップ', text: 'リップはテラコッタ・バーントレッド・ブリックが最高に映えます。チークはコーラルブラウン・テラコッタ系で。アイシャドウはオレンジブラウン・ゴールド・ブロンズで深みを出して。', tag: 'tag-makeup', tagText: 'メイク' },
+      { icon: '💍', bg: '#e2ecfc', title: 'アクセサリー', text: 'ゴールド・コッパー・ブロンズが最高に似合います。ガーネット・タイガーアイ・アンバーなどの深みある天然石も相性◎。シルバーは少し白浮きして見えることがあるので注意。', tag: 'tag-acc', tagText: 'アクセ' },
+    ]
+  },
+  wi: {
+    name: 'ブルベ冬',
+    en: 'Winter / Blue Base',
+    icon: '❄️',
+    hero: 'linear-gradient(135deg, #6868b8, #404090, #9838a8)',
+    keywords: ['クール', 'シャープ', '存在感', 'モダン'],
+    message: '<p>あなたのパーソナルカラーは<strong>ブルベ冬（ウィンター）</strong>。青みを帯びた肌、澄んだブラックの瞳と髪が特徴で、コントラストの強いビビッドカラーやモノクロが最もお似合いです。</p><p>真っ白・真っ黒・ロイヤルブルー・マゼンタ・バーガンディなど、強く明確な色を纏うと顔が際立ちシャープな印象に。反対にくすみカラーや曖昧な色は存在感を消してしまいます。</p>',
+    bestColors: [
+      { color: '#e8e8f0', name: 'ピュアホワイト' },
+      { color: '#101018', name: 'ブラック' },
+      { color: '#3838a8', name: 'ロイヤルブルー' },
+      { color: '#c02870', name: 'マゼンタ' },
+      { color: '#801840', name: 'バーガンディ' },
+      { color: '#8020b0', name: 'パープル' },
+      { color: '#00a8c8', name: 'アイスブルー' },
+      { color: '#c82828', name: 'トゥルーレッド' },
+    ],
+    ngColors: [
+      { color: '#d8b888', name: 'ベージュ' },
+      { color: '#c89858', name: 'キャメル' },
+      { color: '#a08868', name: 'カーキ' },
+      { color: '#d0c0a8', name: 'オートミール' },
+    ],
+    advices: [
+      { icon: '👗', bg: '#f0e2fc', title: 'ファッション', text: '白・黒・グレーのモノクロ配色が最も輝きます。鮮やかなビビッドカラーやコントラストの強いコーデが得意。くすみカラーやベージュ系は避け、はっきりとした色を選ぶと存在感が際立ちます。', tag: 'tag-fashion', tagText: 'ファッション' },
+      { icon: '💄', bg: '#fce2ec', title: 'メイクアップ', text: 'リップはバーガンディ・ディープレッド・フューシャが最強。チークはローズレッドで血色感を。アイシャドウはグレー・シルバー・ディープパープルで洗練されたクールな目元に。', tag: 'tag-makeup', tagText: 'メイク' },
+      { icon: '💍', bg: '#e2ecfc', title: 'アクセサリー', text: 'シルバー・プラチナが断然映えます。ダイヤモンド・オニキス・ルビー・サファイアなど、クリアで深みのある天然石が相性抜群。ゴールドは黄ばんで見えることがあるので避けめに。', tag: 'tag-acc', tagText: 'アクセ' },
+    ]
+  }
+};
+
+// ===== 状態 =====
+let currentQ = 0, answers = [], selected = null;
+const TOTAL = Q.length;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  const el = document.getElementById(id);
+  el.classList.remove('hidden');
+  el.style.animation = 'none';
+  requestAnimationFrame(() => { el.style.animation = ''; });
+}
+
+function startQuiz() {
+  currentQ = 0; answers = []; selected = null;
+  renderQ();
+  showScreen('screen-quiz');
+}
+
+function renderQ() {
+  const q = Q[currentQ];
+  const pct = Math.round((currentQ / TOTAL) * 100);
+  document.getElementById('progress-text').textContent = `質問 ${currentQ + 1} / ${TOTAL}`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-num').textContent = 'QUESTION ' + String(currentQ + 1).padStart(2, '0');
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-hint').textContent = q.hint;
+
+  selected = answers[currentQ] !== undefined ? answers[currentQ] : null;
+  const choicesEl = document.getElementById('q-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn' + (selected === i ? ' selected' : '');
+    btn.innerHTML = `<div class="choice-swatch" style="background:${c.swatch}"></div><span>${c.text}</span>`;
+    btn.onclick = () => pick(i);
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('btn-next').disabled = selected === null;
+  document.getElementById('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+}
+
+function pick(idx) {
+  selected = idx;
+  document.querySelectorAll('.choice-btn').forEach((b, i) => b.classList.toggle('selected', i === idx));
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQ() {
+  if (selected === null) return;
+  answers[currentQ] = selected;
+  if (currentQ < TOTAL - 1) { currentQ++; renderQ(); }
+  else showResult();
+}
+
+function prevQ() {
+  if (currentQ > 0) {
+    if (selected !== null) answers[currentQ] = selected;
+    currentQ--;
+    renderQ();
+  }
+}
+
+function showResult() {
+  showScreen('screen-loading');
+  setTimeout(() => {
+    // スコア集計
+    const scores = { sp: 0, su: 0, au: 0, wi: 0 };
+    answers.forEach((ansIdx, qi) => {
+      const s = Q[qi].choices[ansIdx].scores;
+      Object.keys(s).forEach(k => { scores[k] += s[k]; });
+    });
+    // 最高得点シーズン
+    const winner = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+    renderResult(SEASONS[winner]);
+    showScreen('screen-result');
+  }, 2200);
+}
+
+function renderResult(s) {
+  document.getElementById('r-hero').style.background = s.hero;
+  document.getElementById('r-icon').textContent = s.icon;
+  document.getElementById('r-name').textContent = s.name;
+  document.getElementById('r-en').textContent = s.en;
+  document.getElementById('r-message').innerHTML = s.message;
+
+  const kwEl = document.getElementById('r-keywords');
+  kwEl.innerHTML = s.keywords.map(k => `<div class="result-keyword-chip">${k}</div>`).join('');
+
+  const mkSwatches = (list, elId) => {
+    const el = document.getElementById(elId);
+    el.innerHTML = list.map(c => `
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:${c.color}"></div>
+        <div class="swatch-name">${c.name}</div>
+      </div>`).join('');
+  };
+  mkSwatches(s.bestColors, 'r-best-swatches');
+  mkSwatches(s.ngColors,   'r-ng-swatches');
+
+  const adviceEl = document.getElementById('r-advice');
+  adviceEl.innerHTML = '';
+  s.advices.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'advice-card';
+    div.innerHTML = `
+      <div class="advice-icon" style="background:${a.bg}">${a.icon}</div>
+      <div class="advice-body">
+        <div class="advice-title">${a.title}</div>
+        <div class="advice-text">${a.text}</div>
+        <span class="advice-tag ${a.tag}">${a.tagText}</span>
+      </div>`;
+    adviceEl.appendChild(div);
+  });
+
+  // グローバルに保存（コピー用）
+  window._resultName = s.name;
+}
+
+function retake() {
+  currentQ = 0; answers = []; selected = null;
+  renderQ();
+  showScreen('screen-quiz');
+}
+
+function copyResult() {
+  const text = `💎 パーソナルカラー診断結果\n\nあなたのタイプ：${window._resultName || ''}\n\nあなたも診断してみて！`;
+  navigator.clipboard.writeText(text)
+    .then(() => alert('結果をコピーしました 💎'))
+    .catch(() => alert('コピーに失敗しました。'));
+}
+</script>
+</body>
+</html>
