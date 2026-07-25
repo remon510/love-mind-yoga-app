@@ -2660,7 +2660,12 @@ async function openCamera() {
   }
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' } },
+      video: {
+        facingMode: { ideal: 'environment' },
+        // 文字認識に十分な解像度を確保（未指定だと640x480等の低解像度になる端末がある）
+        width: { ideal: 3840 },
+        height: { ideal: 2160 }
+      },
       audio: false
     });
     const video = document.getElementById('cameraVideo');
@@ -2733,6 +2738,46 @@ function loadPreview(file) {
   reader.readAsDataURL(file);
 }
 
+// ─── OCR用の画像前処理 ───
+// カメラ写真は照明ムラ・低コントラスト・過剰な解像度でOCR精度が落ちやすいため、
+// グレースケール化＋コントラスト強調と、文字が小さすぎ／画像が重すぎる場合の
+// リサイズを行ってからTesseractに渡す。
+function preprocessForOcr(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const longSide = Math.max(img.width, img.height);
+      const maxDim = 2200; // 大きすぎる画像は処理が重くなるため縮小
+      const minDim = 1400; // 小さすぎる画像は文字が潰れるため拡大
+      let scale = 1;
+      if (longSide > maxDim) scale = maxDim / longSide;
+      else if (longSide < minDim) scale = minDim / longSide;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imageData.data;
+      const contrast = 1.6;
+      for (let i = 0; i < d.length; i += 4) {
+        const gray = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+        let v = (gray - 128) * contrast + 128;
+        v = v < 0 ? 0 : (v > 255 ? 255 : v);
+        d[i] = d[i + 1] = d[i + 2] = v;
+      }
+      ctx.putImageData(imageData, 0, 0);
+      canvas.toBlob((blob) => resolve(blob || file), 'image/png');
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 // ─── OCR実行 ───
 async function runOCR() {
   if (!selectedFile) return;
@@ -2746,7 +2791,7 @@ async function runOCR() {
     const worker = await Tesseract.createWorker('jpn', 1, {
       logger: m => {
         if (m.status === 'recognizing text') {
-          const pct = Math.round(m.progress * 90) + 5;
+          const pct = Math.round(m.progress * 80) + 15;
           setOcrStatus(`文字を認識中… ${Math.round(m.progress*100)}%`, pct);
         } else if (m.status === 'loading tesseract core') {
           setOcrStatus('OCRエンジンを起動中…', 10);
@@ -2756,14 +2801,20 @@ async function runOCR() {
       }
     });
 
-    setOcrStatus('画像を解析中…', 50);
-    const { data: { text } } = await worker.recognize(selectedFile);
+    setOcrStatus('画像を処理中…', 25);
+    const processedImage = await preprocessForOcr(selectedFile);
+
+    setOcrStatus('画像を解析中…', 30);
+    const { data: { text } } = await worker.recognize(processedImage);
     await worker.terminate();
 
     setOcrStatus('完了！テキストを反映しました ✅', 100);
 
     // テキストエリアに反映して自動でテキストタブへ
-    const cleaned = text.replace(/\s+/g, ' ').trim();
+    // 日本語OCRは文字間に余計な空白を挿入しやすく、空白1個への圧縮では
+    // 「ソル ビン 酸 K」のように残った空白がDB照合の失敗（誤って0件検出）の
+    // 原因になるため、空白は完全に除去する（原材料表示は本来スペースを含まない）。
+    const cleaned = text.replace(/\s+/g, '').trim();
     document.getElementById('ingredientInput').value = cleaned;
     setTimeout(() => {
       switchTab('text');
