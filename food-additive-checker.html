@@ -2668,7 +2668,16 @@ async function openCamera() {
     document.getElementById('cameraView').style.display = 'flex';
   } catch (err) {
     closeCamera();
-    document.getElementById('camInput').click();
+    let msg = 'カメラを起動できませんでした。';
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      msg = 'カメラへのアクセスが許可されていません。\nブラウザのサイト設定（アドレスバー左のアイコン→サイトの設定→カメラ）、'
+          + 'またはスマホ本体の設定（アプリ→ブラウザ→権限→カメラ）を確認し、許可してからもう一度お試しください。';
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      msg = 'カメラが見つかりませんでした。';
+    } else if (err.name === 'NotReadableError') {
+      msg = 'カメラが他のアプリで使用中の可能性があります。他のアプリを閉じてからお試しください。';
+    }
+    alert(msg + '\n\n代わりに「🖼️ ギャラリー」から画像を選択することもできます。');
   }
 }
 
