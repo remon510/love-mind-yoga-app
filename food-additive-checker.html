@@ -2456,20 +2456,26 @@ function analyze() {
   const found = [];
   const foundNames = new Set();
 
+  // 括弧を正規化（全角⇔半角を統一して照合精度を上げる）
+  const normalizedInput = input.replace(/\(/g,'（').replace(/\)/g,'）');
+
   // DB内の全キーと入力テキストを照合
-  const entries = Object.entries(DB);
-  // 長い名前から優先的にマッチ（部分一致の誤検知を減らす）
-  entries.sort((a,b) => b[0].length - a[0].length);
+  // 長い名前から優先的にマッチし、マッチした範囲は伏せ字化して除外
+  // （例:「アスパルテーム・L-フェニルアラニン化合物」に一致した後、
+  // 　内部の「アスパルテーム」や「アラニン」を別添加物として誤検出しないようにする）
+  const entries = Object.entries(DB).sort((a,b) => b[0].length - a[0].length);
+  let workingText = normalizedInput;
 
   for (const [name, info] of entries) {
-    if (input.includes(name) && !foundNames.has(name)) {
+    if (workingText.includes(name)) {
       foundNames.add(name);
       found.push({ name, ...info });
+      workingText = workingText.split(name).join('　'.repeat(name.length));
     }
   }
 
   // 追加: 括弧内の不明添加物を抽出
-  const allParen = [...input.matchAll(/[（(]([^）)]+)[）)]/g)].map(m => m[1]);
+  const allParen = [...normalizedInput.matchAll(/[（(]([^）)]+)[）)]/g)].map(m => m[1]);
   const unknownItems = [];
   // 括弧内に「○○剤」「○○料」「○○素」的な語が含まれ、かつDB未登録のもの
   const additiveKeywords = /料|剤|素|色素|剤類|化合物|酸$|酸Na$|酸K$/;
