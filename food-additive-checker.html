@@ -136,6 +136,31 @@
   .img-btn-gal { background:#e8f5e9; color:var(--green); border:1.5px solid #b7dfc8; }
   .img-btn-gal:hover { background:#c8f0d8; }
 
+  /* ライブカメラ撮影画面 */
+  #cameraView {
+    display:none; position:fixed; inset:0; background:#000; z-index:9999;
+    align-items:center; justify-content:center;
+  }
+  #cameraVideo { width:100%; height:100%; object-fit:cover; }
+  .camera-close-btn {
+    position:absolute; top:16px; right:16px; width:42px; height:42px; border-radius:50%;
+    background:rgba(0,0,0,0.55); color:#fff; border:none; font-size:1.2rem; line-height:1;
+    cursor:pointer; z-index:1;
+  }
+  .camera-controls {
+    position:absolute; bottom:32px; left:0; right:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .camera-shutter-btn {
+    width:68px; height:68px; border-radius:50%; background:#fff; border:4px solid rgba(255,255,255,0.5);
+    box-shadow:0 0 0 3px rgba(0,0,0,0.3); cursor:pointer;
+  }
+  .camera-shutter-btn:active { background:#ddd; }
+  .camera-hint {
+    position:absolute; top:16px; left:16px; right:64px; color:#fff; font-size:0.78rem;
+    background:rgba(0,0,0,0.45); padding:6px 10px; border-radius:8px;
+  }
+
   /* 画像プレビュー */
   #imgPreviewWrap { display:none; margin-top:14px; }
   #imgPreview {
@@ -418,8 +443,17 @@
         <input type="file" id="fileUpload" accept="image/*" style="display:none">
         <input type="file" id="camInput" accept="image/*" capture="environment" style="display:none">
         <div class="img-btn-row">
-          <label for="camInput" class="img-btn img-btn-cam">📸 カメラで撮影</label>
+          <button type="button" id="btnOpenCamera" class="img-btn img-btn-cam" onclick="openCamera()">📸 カメラで撮影</button>
           <label for="fileUpload" class="img-btn img-btn-gal">🖼️ ギャラリー</label>
+        </div>
+
+        <div id="cameraView">
+          <video id="cameraVideo" autoplay playsinline muted></video>
+          <button type="button" class="camera-close-btn" onclick="closeCamera()" aria-label="閉じる">✕</button>
+          <div class="camera-controls">
+            <button type="button" class="camera-shutter-btn" onclick="capturePhoto()" aria-label="撮影する"></button>
+          </div>
+          <div class="camera-hint">📷 原材料名の欄が画面いっぱいに収まるようにしてください</div>
         </div>
 
         <div id="imgPreviewWrap">
@@ -2613,6 +2647,51 @@ function switchTab(tab) {
 
 // ─── 画像選択 ───
 let selectedFile = null;
+let cameraStream = null;
+
+// ─── ライブカメラ撮影 ───
+// Android Chromeの新しい写真ピッカー仕様等により <input capture> がカメラでは
+// なくギャラリーを開いてしまう端末があるため、getUserMediaで直接カメラ映像を
+// 表示して撮影する方式を優先し、非対応時のみ従来のcamInputにフォールバックする。
+async function openCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    document.getElementById('camInput').click();
+    return;
+  }
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    });
+    const video = document.getElementById('cameraVideo');
+    video.srcObject = cameraStream;
+    document.getElementById('cameraView').style.display = 'flex';
+  } catch (err) {
+    closeCamera();
+    document.getElementById('camInput').click();
+  }
+}
+
+function closeCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  document.getElementById('cameraView').style.display = 'none';
+}
+
+function capturePhoto() {
+  const video = document.getElementById('cameraVideo');
+  if (!video.videoWidth) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.toBlob(blob => {
+    if (blob) loadPreview(blob);
+    closeCamera();
+  }, 'image/jpeg', 0.92);
+}
 
 function setupImageInputs() {
   ['fileUpload','camInput'].forEach(id => {
