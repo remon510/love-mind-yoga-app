@@ -11,6 +11,7 @@
 | `backtest_result_xauusd_m15.csv` | XAUUSD 15分足の結果（全設定マイナス） |
 | `equity_usdjpy_h4.png` | USDJPY 4時間足の残高推移 |
 | `backtest_result_ma_flat.csv` | 「MA横ばい時のみ」フィルターの検証（2012-17 / 2018-22 に分割） |
+| `backtest_result_m5_m1.csv` | XAUUSD/USDJPY 5分足・1分足（2026/03〜09、前半/後半に分割） |
 | `equity_usdjpy_h4_ma_flat.png` | USDJPY 4時間足 フィルターあり/なしの残高推移 |
 
 ## ルール
@@ -27,3 +28,5 @@ python backtest.py --csv USDJPYh4.csv --scale 1000
 python backtest.py --csv XAUUSDm15.csv --scale 100 --pip 0.1 --spread 2.5   # ゴールド15分足（1pips=0.1ドル）
 ```
 データ: https://github.com/ejtraderLabs/historical-data（2012/11〜2022/03、価格は1000倍で記録）
+
+5分足・1分足のデータ: https://github.com/getdata-finance （xauusd-5m/1m-ohlcv-metals-historical-data, usdjpy-5m/1m-ohlcv-forex-historical-data の無料サンプル）
