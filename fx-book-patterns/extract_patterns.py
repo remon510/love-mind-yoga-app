@@ -78,6 +78,8 @@ def detect(df, lookback=20, require_opposite_prev=True, tol=0.0, gap=10):
 
 
 def render(df, i, side, level, path, symbol, tf, before=40, after=15, mono=False, lookback=20):
+    daily = (df.index[1:] - df.index[:-1]).min() >= pd.Timedelta("1D")
+    xfmt, tfmt = ("%Y/%m/%d", "%Y-%m-%d") if daily else ("%m/%d %H:%M", "%Y-%m-%d %H:%M")
     s, e = max(0, i - before), min(len(df), i + after + 1)
     win = df.iloc[s:e]
     k = i - s  # ウィンドウ内での位置
@@ -90,7 +92,7 @@ def render(df, i, side, level, path, symbol, tf, before=40, after=15, mono=False
                                facecolor="white", rc={"font.family": FONT})
 
     fig, axes = mpf.plot(win, type="candle", style=style, returnfig=True,
-                         figsize=(10, 5.6), datetime_format="%m/%d %H:%M",
+                         figsize=(10, 5.6), datetime_format=xfmt,
                          xrotation=0, tight_layout=True, ylabel="")
     ax = axes[0]
     accent = "black" if mono else "#e67e00"
@@ -118,7 +120,7 @@ def render(df, i, side, level, path, symbol, tf, before=40, after=15, mono=False
     ymin, ymax = ax.get_ylim()
     ax.set_ylim(min(ymin, y - pad * 8), max(ymax, y + pad * 8))
 
-    ax.set_title("%s %s  %s" % (symbol, tf, df.index[i].strftime("%Y-%m-%d %H:%M")),
+    ax.set_title("%s %s  %s" % (symbol, tf, df.index[i].strftime(tfmt)),
                  fontsize=12, loc="left")
     fig.savefig(path, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -133,10 +135,12 @@ def main():
     ap.add_argument("--lookback", type=int, default=20)
     ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "images"))
     ap.add_argument("--mono", action="store_true")
+    ap.add_argument("--scale", type=float, default=1.0, help="価格を割る数（例: 1000倍で記録されたCSVなら1000）")
     ap.add_argument("--max", type=int, default=30, help="時間足ごとの最大枚数")
     a = ap.parse_args()
 
     base = load_csv(a.csv) if a.csv else load_sample()
+    base = base / a.scale
     rules = {"H1": "1h", "H4": "4h", "D1": "1D"}
     os.makedirs(a.out, exist_ok=True)
     rows = []
@@ -156,6 +160,8 @@ def main():
                              level=level, close=df["Close"].iloc[i],
                              move_after_10bars=round(move, 5) if len(fwd) else None))
         print("%s: %d 件" % (tf, len(hits)))
+    if not rows:
+        return
     pd.DataFrame(rows).to_csv(os.path.join(a.out, "list.csv"), index=False, encoding="utf-8-sig")
 
 
