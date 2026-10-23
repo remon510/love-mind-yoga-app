@@ -69,8 +69,78 @@ class OutsideReversal(Strategy):
             self.buy(sl=sl, tp=c[i] + risk * self.rr, size=max(1, int(risk_cash / risk)))
 
 
-def run(df, pip=0.01, spread_pips=0.4, **params):
-    bt = Backtest(df, OutsideReversal, cash=1_000_000, margin=1/25,
+class RegimeSwitch(Strategy):
+    """
+    MA100の傾きで相場を判定して手法を切り替える（RegimeSwitchEA.mq4 / .mq5 と同じルール）
+      傾き = (MA[今] - MA[10本前]) / 直近14本の平均値幅
+      |傾き| < flat_atr        : レンジ → 高値更新アウトサイド陰線で売り（安値は逆）
+      傾き >= trend_atr        : 上昇トレンド → MA20まで押して陽の包み足、MA20より上で引けたら買い
+      傾き <= -trend_atr       : 下降トレンド → 上記の逆で売り
+      その間                   : 何もしない
+    """
+    lookback = 20
+    range_rr = 2.0
+    trend_rr = 2.0
+    buffer = 0.02
+    risk_pct = 1.0
+    ma_period = 100
+    fast_ma = 20
+    ma_slope_bars = 10
+    flat_atr = 0.5
+    trend_atr = 1.0
+    use_range = True
+    use_trend = True
+
+    def init(self):
+        close = pd.Series(self.data.Close)
+        self.ma = self.I(lambda: close.rolling(self.ma_period).mean().values, name="MA")
+        self.fma = self.I(lambda: close.rolling(self.fast_ma).mean().values, name="FastMA")
+        hl = pd.Series(self.data.High) - pd.Series(self.data.Low)
+        self.atr = self.I(lambda: hl.rolling(14).mean().values, name="ATR")
+
+    def next(self):
+        if self.position or self.orders:
+            return
+        i = len(self.data) - 1
+        n = self.ma_slope_bars
+        if i < max(self.lookback + 1, self.ma_period + n) or not self.atr[-1]:
+            return
+        slope = (self.ma[-1] - self.ma[-1 - n]) / self.atr[-1]
+        o, h, l, c = self.data.Open, self.data.High, self.data.Low, self.data.Close
+        p_top, p_bot = max(o[i-1], c[i-1]), min(o[i-1], c[i-1])
+        engulf = max(o[i], c[i]) >= p_top and min(o[i], c[i]) <= p_bot \
+            and abs(c[i] - o[i]) > abs(c[i-1] - o[i-1])
+        if not engulf:
+            return
+        bull = c[i] > o[i] and c[i-1] < o[i-1]
+        bear = c[i] < o[i] and c[i-1] > o[i-1]
+        risk_cash = self.equity * self.risk_pct / 100
+
+        if abs(slope) < self.flat_atr:
+            if not self.use_range:
+                return
+            if bear and h[i] > h[i-self.lookback:i].max():
+                self._sell(h[i] + self.buffer, c[i], self.range_rr, risk_cash)
+            elif bull and l[i] < l[i-self.lookback:i].min():
+                self._buy(l[i] - self.buffer, c[i], self.range_rr, risk_cash)
+        elif self.use_trend:
+            f = self.fma[-1]
+            if slope >= self.trend_atr and bull and l[i] <= f < c[i]:
+                self._buy(l[i] - self.buffer, c[i], self.trend_rr, risk_cash)
+            elif slope <= -self.trend_atr and bear and h[i] >= f > c[i]:
+                self._sell(h[i] + self.buffer, c[i], self.trend_rr, risk_cash)
+
+    def _buy(self, sl, entry, rr, risk_cash):
+        risk = entry - sl
+        self.buy(sl=sl, tp=entry + risk * rr, size=max(1, int(risk_cash / risk)))
+
+    def _sell(self, sl, entry, rr, risk_cash):
+        risk = sl - entry
+        self.sell(sl=sl, tp=entry - risk * rr, size=max(1, int(risk_cash / risk)))
+
+
+def run(df, pip=0.01, spread_pips=0.4, strategy=OutsideReversal, **params):
+    bt = Backtest(df, strategy, cash=1_000_000, margin=1/25,
                   spread=spread_pips * pip / df.Close.mean(), finalize_trades=True)
     st = bt.run(**params)
     t = st._trades
