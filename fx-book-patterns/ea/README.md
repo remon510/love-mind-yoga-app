@@ -7,7 +7,8 @@
 | `OutsideReversalEA.mq4` | MT4用（MQL4/Experts に置いてコンパイル） |
 | `OutsideReversalEA.mq5` | MT5用（MQL5/Experts に置いてコンパイル） |
 | `backtest.py` | 同じルールの Python バックテスト |
-| `backtest_result.csv` | USDJPY 日足/4時間足/1時間足 × パラメータの結果 |
+| `backtest_result_usdjpy.csv` | USDJPY 日足/4時間足/1時間足 × パラメータの結果 |
+| `backtest_result_xauusd_m15.csv` | XAUUSD 15分足の結果（全設定マイナス） |
 | `equity_usdjpy_h4.png` | USDJPY 4時間足の残高推移 |
 
 ## ルール
@@ -19,5 +20,6 @@
 ## Pythonでの再実行
 ```
 python backtest.py --csv USDJPYh4.csv --scale 1000
+python backtest.py --csv XAUUSDm15.csv --scale 100 --pip 0.1 --spread 2.5   # ゴールド15分足（1pips=0.1ドル）
 ```
 データ: https://github.com/ejtraderLabs/historical-data（2012/11〜2022/03、価格は1000倍で記録）

@@ -10,6 +10,7 @@
 //+------------------------------------------------------------------+
 #property strict
 
+input double PipSizeOverride = 0.0;    // 1pipsの価格幅 0なら自動(FX:0.01/0.0001, ゴールド:0.1)
 input int    Lookback      = 20;       // 直近何本の高値/安値を基準にするか
 input double RR            = 2.0;      // 利確 = 損切り幅 × RR
 input double BufferPips    = 2.0;      // 損切りをパターン足の外側に置く幅(pips)
@@ -23,6 +24,8 @@ datetime lastBarTime = 0;
 
 double PipSize()
 {
+   if(PipSizeOverride > 0) return PipSizeOverride;
+   if(StringFind(Symbol(), "XAU") >= 0 || StringFind(Symbol(), "GOLD") >= 0) return 0.1;
    return (Digits == 3 || Digits == 5) ? Point * 10 : Point;
 }
 

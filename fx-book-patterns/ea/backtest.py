@@ -85,7 +85,7 @@ def main():
     res = pd.DataFrame(rows)
     pd.set_option("display.width", 200)
     print(res.to_string(index=False))
-    res.to_csv(os.path.join(os.path.dirname(__file__), "backtest_result.csv"),
+    res.to_csv(os.path.join(os.path.dirname(__file__), "backtest_result_%s.csv" % os.path.splitext(os.path.basename(a.csv[0]))[0]),
                index=False, encoding="utf-8-sig")
 
 
