@@ -12,6 +12,7 @@
 | `equity_usdjpy_h4.png` | USDJPY 4時間足の残高推移 |
 | `backtest_result_ma_flat.csv` | 「MA横ばい時のみ」フィルターの検証（2012-17 / 2018-22 に分割） |
 | `backtest_result_m5_m1.csv` | XAUUSD/USDJPY 5分足・1分足（2026/03〜09、前半/後半に分割） |
+| `backtest_result_lb10_rr1.csv` | 直近10本・損益1対1 で全データを検証 |
 | `equity_usdjpy_h4_ma_flat.png` | USDJPY 4時間足 フィルターあり/なしの残高推移 |
 
 ## ルール
