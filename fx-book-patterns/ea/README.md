@@ -10,12 +10,16 @@
 | `backtest_result_usdjpy.csv` | USDJPY 日足/4時間足/1時間足 × パラメータの結果 |
 | `backtest_result_xauusd_m15.csv` | XAUUSD 15分足の結果（全設定マイナス） |
 | `equity_usdjpy_h4.png` | USDJPY 4時間足の残高推移 |
+| `backtest_result_ma_flat.csv` | 「MA横ばい時のみ」フィルターの検証（2012-17 / 2018-22 に分割） |
+| `equity_usdjpy_h4_ma_flat.png` | USDJPY 4時間足 フィルターあり/なしの残高推移 |
 
 ## ルール
 - エントリー: パターン確定の次の足の始値
 - 損切り: パターン足の高値(売り)/安値(買い) ± 2pips
 - 利確: 損切り幅 × RR（初期値 2.0）
 - ポジションは同時に1つ、1回のリスクは残高の1%
+- （任意）MAPeriod>0 で「MAが横ばいの時だけ」エントリー
+  横ばい = |MA(確定足) − MA(MASlopeBars本前)| ÷ 直近14本の平均値幅(高値−安値) < FlatATR
 
 ## Pythonでの再実行
 ```

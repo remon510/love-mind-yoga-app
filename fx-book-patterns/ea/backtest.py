@@ -27,9 +27,24 @@ class OutsideReversal(Strategy):
     rr = 1.5
     buffer = 0.02          # 損切りバッファ（価格。ドル円なら0.02=2pips）
     risk_pct = 1.0         # 1トレードのリスク（口座残高に対する%）
+    ma_period = 0          # >0 で「MAが横ばいの時だけ」エントリー
+    ma_slope_bars = 10     # 傾きを測る本数
+    flat_atr = 0.5         # |MA[今] - MA[slope_bars本前]| / ATR(14) がこれ未満なら横ばい
 
     def init(self):
-        pass
+        if self.ma_period:
+            close = pd.Series(self.data.Close)
+            self.ma = self.I(lambda: close.rolling(self.ma_period).mean().values, name="MA")
+            hl = pd.Series(self.data.High) - pd.Series(self.data.Low)
+            self.atr = self.I(lambda: hl.rolling(14).mean().values, name="ATR")
+
+    def ma_is_flat(self):
+        if not self.ma_period:
+            return True
+        n = self.ma_slope_bars
+        if len(self.ma) <= n or np.isnan(self.ma[-1 - n]) or not self.atr[-1]:
+            return False
+        return abs(self.ma[-1] - self.ma[-1 - n]) / self.atr[-1] < self.flat_atr
 
     def next(self):
         if self.position or self.orders:
@@ -41,7 +56,7 @@ class OutsideReversal(Strategy):
         p_top, p_bot = max(o[i-1], c[i-1]), min(o[i-1], c[i-1])
         engulf = max(o[i], c[i]) >= p_top and min(o[i], c[i]) <= p_bot \
             and abs(c[i] - o[i]) > abs(c[i-1] - o[i-1])
-        if not engulf:
+        if not engulf or not self.ma_is_flat():
             return
         risk_cash = self.equity * self.risk_pct / 100
         if h[i] > h[i-self.lookback:i].max() and c[i] < o[i] and c[i-1] > o[i-1]:

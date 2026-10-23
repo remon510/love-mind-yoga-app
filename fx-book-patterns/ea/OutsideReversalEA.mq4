@@ -12,6 +12,9 @@
 
 input double PipSizeOverride = 0.0;    // 1pipsの価格幅 0なら自動(FX:0.01/0.0001, ゴールド:0.1)
 input int    Lookback      = 20;       // 直近何本の高値/安値を基準にするか
+input int    MAPeriod      = 0;        // >0で「MAが横ばいの時だけ」エントリー（例:100）
+input int    MASlopeBars   = 10;       // MAの傾きを測る本数
+input double FlatATR       = 0.5;      // |MAの変化| ÷ 直近14本の平均値幅 がこれ未満なら横ばい
 input double RR            = 2.0;      // 利確 = 損切り幅 × RR
 input double BufferPips    = 2.0;      // 損切りをパターン足の外側に置く幅(pips)
 input double RiskPercent   = 1.0;      // 1トレードの許容損失(残高の%) 0なら固定ロット
@@ -29,13 +32,32 @@ double PipSize()
    return (Digits == 3 || Digits == 5) ? Point * 10 : Point;
 }
 
+double SMA(int shift)
+{
+   double sum = 0;
+   for(int k = 0; k < MAPeriod; k++) sum += Close[shift + k];
+   return sum / MAPeriod;
+}
+
+// 確定足の時点でMAが横ばいか
+bool MAIsFlat()
+{
+   if(MAPeriod <= 0) return true;
+   if(Bars < MAPeriod + MASlopeBars + 16) return false;
+   double range = 0;
+   for(int k = 1; k <= 14; k++) range += High[k] - Low[k];
+   range /= 14;
+   if(range <= 0) return false;
+   return MathAbs(SMA(1) - SMA(1 + MASlopeBars)) / range < FlatATR;
+}
+
 // 1=買い -1=売り 0=なし（確定した1本前の足で判定）
 int Signal()
 {
    double o1 = Open[1], c1 = Close[1], o2 = Open[2], c2 = Close[2];
    bool engulf = MathMax(o1, c1) >= MathMax(o2, c2) && MathMin(o1, c1) <= MathMin(o2, c2)
                  && MathAbs(c1 - o1) > MathAbs(c2 - o2);
-   if(!engulf) return 0;
+   if(!engulf || !MAIsFlat()) return 0;
 
    double hh = High[iHighest(NULL, 0, MODE_HIGH, Lookback, 2)];
    double ll = Low[iLowest(NULL, 0, MODE_LOW, Lookback, 2)];

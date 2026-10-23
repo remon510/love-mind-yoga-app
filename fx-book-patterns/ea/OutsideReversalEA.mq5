@@ -12,6 +12,9 @@
 
 input double PipSizeOverride = 0.0;    // 1pipsの価格幅 0なら自動(FX:0.01/0.0001, ゴールド:0.1)
 input int    Lookback      = 20;       // 直近何本の高値/安値を基準にするか
+input int    MAPeriod      = 0;        // >0で「MAが横ばいの時だけ」エントリー（例:100）
+input int    MASlopeBars   = 10;       // MAの傾きを測る本数
+input double FlatATR       = 0.5;      // |MAの変化| ÷ 直近14本の平均値幅 がこれ未満なら横ばい
 input double RR            = 2.0;      // 利確 = 損切り幅 × RR
 input double BufferPips    = 2.0;      // 損切りをパターン足の外側に置く幅(pips)
 input double RiskPercent   = 1.0;      // 1トレードの許容損失(残高の%) 0なら固定ロット
@@ -30,13 +33,31 @@ double PipSize()
    return (_Digits == 3 || _Digits == 5) ? _Point * 10 : _Point;
 }
 
+double SMA(const MqlRates &r[], int shift)
+{
+   double sum = 0;
+   for(int k = 0; k < MAPeriod; k++) sum += r[shift + k].close;
+   return sum / MAPeriod;
+}
+
+// 確定足の時点でMAが横ばいか
+bool MAIsFlat(const MqlRates &r[])
+{
+   if(MAPeriod <= 0) return true;
+   double range = 0;
+   for(int k = 1; k <= 14; k++) range += r[k].high - r[k].low;
+   range /= 14;
+   if(range <= 0) return false;
+   return MathAbs(SMA(r, 1) - SMA(r, 1 + MASlopeBars)) / range < FlatATR;
+}
+
 // 1=買い -1=売り 0=なし（確定した1本前の足で判定）
 int Signal(const MqlRates &r[])
 {
    double o1 = r[1].open, c1 = r[1].close, o2 = r[2].open, c2 = r[2].close;
    bool engulf = MathMax(o1, c1) >= MathMax(o2, c2) && MathMin(o1, c1) <= MathMin(o2, c2)
                  && MathAbs(c1 - o1) > MathAbs(c2 - o2);
-   if(!engulf) return 0;
+   if(!engulf || !MAIsFlat(r)) return 0;
 
    double hh = r[2].high, ll = r[2].low;
    for(int k = 3; k <= Lookback + 1; k++)
@@ -92,7 +113,8 @@ void OnTick()
 {
    MqlRates r[];
    ArraySetAsSeries(r, true);
-   if(CopyRates(_Symbol, _Period, 0, Lookback + 3, r) < Lookback + 3) return;
+   int need = MathMax(MathMax(Lookback + 3, MAPeriod + MASlopeBars + 2), 16);
+   if(CopyRates(_Symbol, _Period, 0, need, r) < need) return;
    if(r[0].time == lastBarTime) return;   // 新しい足の始まりでだけ判定
    lastBarTime = r[0].time;
 
