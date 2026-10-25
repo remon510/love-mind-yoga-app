@@ -139,6 +139,39 @@ class RegimeSwitch(Strategy):
         self.sell(sl=sl, tp=entry - risk * rr, size=max(1, int(risk_cash / risk)))
 
 
+def add_htf_slope(df, rule="4h", ma_period=100, slope_bars=10):
+    """上位足のMA傾き（(MA - MA[slope_bars本前]) / 14本平均値幅）を列 HTF として付ける。
+    上位足は確定した足の値だけを使う（足の終了時刻 <= 下位足の終値時刻）。"""
+    htf = df.resample(rule).agg({"Open": "first", "High": "max", "Low": "min", "Close": "last"}).dropna()
+    ma = htf.Close.rolling(ma_period).mean()
+    rng = (htf.High - htf.Low).rolling(14).mean()
+    slope = ((ma - ma.shift(slope_bars)) / rng).rename("HTF")
+    slope.index = slope.index + pd.Timedelta(rule)            # 足の終了時刻
+    step = df.index.to_series().diff().median()
+    key = pd.DataFrame({"t": df.index + step})                # 下位足の終値時刻
+    right = pd.DataFrame({"end": slope.index, "HTF": slope.values}).dropna()
+    m = pd.merge_asof(key, right, left_on="t", right_on="end", direction="backward")
+    out = df.copy()
+    out["HTF"] = m["HTF"].values
+    return out.dropna(subset=["HTF"])
+
+
+class TrendAlignedRange(RegimeSwitch):
+    """下位足の型A（レンジ逆張り）のうち、上位足MA100の傾きと同じ方向のサインだけを取る
+      HTF >= htf_atr  : 買いのみ
+      HTF <= -htf_atr : 売りのみ"""
+    htf_atr = 0.0
+    use_trend = False
+
+    def _buy(self, sl, entry, rr, risk_cash):
+        if self.data.HTF[-1] > 0 and self.data.HTF[-1] >= self.htf_atr:
+            super()._buy(sl, entry, rr, risk_cash)
+
+    def _sell(self, sl, entry, rr, risk_cash):
+        if self.data.HTF[-1] < 0 and self.data.HTF[-1] <= -self.htf_atr:
+            super()._sell(sl, entry, rr, risk_cash)
+
+
 def run(df, pip=0.01, spread_pips=0.4, strategy=OutsideReversal, **params):
     bt = Backtest(df, strategy, cash=1_000_000, margin=1/25,
                   spread=spread_pips * pip / df.Close.mean(), finalize_trades=True)

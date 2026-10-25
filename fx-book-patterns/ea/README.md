@@ -15,6 +15,7 @@
 | `backtest_result_m5_m1.csv` | XAUUSD/USDJPY 5分足・1分足（2026/03〜09、前半/後半に分割） |
 | `backtest_result_lb10_rr1.csv` | 直近10本・損益1対1 で全データを検証 |
 | `backtest_result_regime_switch.csv` | 切り替えロジックの検証（USDJPY・4時間足12銘柄・日足6銘柄） |
+| `backtest_result_usdjpy_m15_aligned.csv` | USDJPY 15分足の型A（4時間足の向きに合わせたサインのみ）の検証 |
 | `equity_usdjpy_h4_ma_flat.png` | USDJPY 4時間足 フィルターあり/なしの残高推移 |
 
 ## ルール
