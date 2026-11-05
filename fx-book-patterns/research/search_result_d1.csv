@@ -1,0 +1,4 @@
+﻿family,params,train_cagr,train_maxdd,train_sharpe,train_pf,train_trades,train_win,test_cagr,test_maxdd,test_sharpe,test_pf,test_trades,test_win
+Donchian,"{'entry_n': 100, 'exit_n': 50, 'stop_atr': 2.0}",1.2,-4.6,0.4,1.62,152,23.7,-1.1,-5.3,-0.57,0.48,140,21.4
+MACross,"{'fast': 50, 'slow': 200, 'trail_atr': 5.0, 'stop_atr': 3.0}",0.3,-2.2,0.33,1.45,72,30.6,-0.2,-1.2,-0.29,0.68,55,30.9
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 5, 'hi': 95, 'stop_atr': 3.0}",0.0,-0.7,0.1,1.06,308,59.4,0.2,-0.6,0.56,1.35,253,69.6

@@ -1,0 +1,39 @@
+﻿family,params,train_cagr,train_maxdd,train_sharpe,train_pf,train_trades,train_win
+Donchian,"{'entry_n': 20, 'exit_n': 10, 'stop_atr': 2.0}",2.1,-8.1,0.45,1.08,3403,35.4
+Donchian,"{'entry_n': 20, 'exit_n': 10, 'stop_atr': 3.0}",1.8,-5.4,0.54,1.1,3273,37.8
+Donchian,"{'entry_n': 55, 'exit_n': 10, 'stop_atr': 2.0}",1.5,-6.5,0.41,1.09,2062,35.9
+Donchian,"{'entry_n': 55, 'exit_n': 10, 'stop_atr': 3.0}",1.3,-4.0,0.49,1.12,1981,38.2
+Donchian,"{'entry_n': 55, 'exit_n': 20, 'stop_atr': 2.0}",2.1,-7.4,0.5,1.14,1671,33.6
+Donchian,"{'entry_n': 55, 'exit_n': 20, 'stop_atr': 3.0}",1.7,-5.4,0.55,1.16,1525,38.2
+Donchian,"{'entry_n': 55, 'exit_n': 50, 'stop_atr': 2.0}",1.7,-9.8,0.33,1.1,1355,24.5
+Donchian,"{'entry_n': 55, 'exit_n': 50, 'stop_atr': 3.0}",0.4,-8.7,0.1,1.03,1158,31.2
+Donchian,"{'entry_n': 100, 'exit_n': 10, 'stop_atr': 2.0}",0.8,-5.7,0.26,1.07,1494,35.6
+Donchian,"{'entry_n': 100, 'exit_n': 10, 'stop_atr': 3.0}",0.6,-4.1,0.28,1.08,1437,37.9
+Donchian,"{'entry_n': 100, 'exit_n': 20, 'stop_atr': 2.0}",0.9,-7.0,0.26,1.08,1217,32.9
+Donchian,"{'entry_n': 100, 'exit_n': 20, 'stop_atr': 3.0}",0.7,-5.7,0.29,1.09,1113,37.7
+Donchian,"{'entry_n': 100, 'exit_n': 50, 'stop_atr': 2.0}",0.9,-8.8,0.22,1.08,987,23.9
+Donchian,"{'entry_n': 100, 'exit_n': 50, 'stop_atr': 3.0}",0.7,-6.6,0.21,1.08,851,30.4
+MACross,"{'fast': 20, 'slow': 100, 'trail_atr': 3.0, 'stop_atr': 3.0}",1.0,-4.8,0.36,1.13,1202,39.0
+MACross,"{'fast': 20, 'slow': 100, 'trail_atr': 5.0, 'stop_atr': 3.0}",0.4,-4.7,0.12,1.04,1134,34.6
+MACross,"{'fast': 20, 'slow': 200, 'trail_atr': 3.0, 'stop_atr': 3.0}",-0.4,-5.1,-0.14,0.94,831,35.3
+MACross,"{'fast': 20, 'slow': 200, 'trail_atr': 5.0, 'stop_atr': 3.0}",-0.8,-7.8,-0.25,0.89,811,33.7
+MACross,"{'fast': 50, 'slow': 100, 'trail_atr': 3.0, 'stop_atr': 3.0}",-0.1,-9.4,-0.0,0.94,946,40.9
+MACross,"{'fast': 50, 'slow': 100, 'trail_atr': 5.0, 'stop_atr': 3.0}",-1.6,-11.9,-0.35,0.79,912,33.6
+MACross,"{'fast': 50, 'slow': 200, 'trail_atr': 3.0, 'stop_atr': 3.0}",-1.3,-10.2,-0.33,0.69,571,40.5
+MACross,"{'fast': 50, 'slow': 200, 'trail_atr': 5.0, 'stop_atr': 3.0}",-2.2,-13.6,-0.53,0.63,570,32.1
+RSI2,"{'trend_ma': 100, 'exit_ma': 5, 'lo': 5, 'hi': 90, 'stop_atr': 2.0}",-0.2,-3.2,-0.09,0.99,3028,62.8
+RSI2,"{'trend_ma': 100, 'exit_ma': 5, 'lo': 5, 'hi': 90, 'stop_atr': 3.0}",-0.2,-3.4,-0.12,0.98,2872,63.8
+RSI2,"{'trend_ma': 100, 'exit_ma': 5, 'lo': 5, 'hi': 95, 'stop_atr': 2.0}",-0.7,-4.9,-0.52,0.92,1961,61.2
+RSI2,"{'trend_ma': 100, 'exit_ma': 5, 'lo': 5, 'hi': 95, 'stop_atr': 3.0}",-0.6,-4.1,-0.58,0.89,1882,62.0
+RSI2,"{'trend_ma': 100, 'exit_ma': 5, 'lo': 10, 'hi': 90, 'stop_atr': 2.0}",0.0,-3.4,0.03,1.0,4091,62.9
+RSI2,"{'trend_ma': 100, 'exit_ma': 5, 'lo': 10, 'hi': 90, 'stop_atr': 3.0}",0.2,-2.7,0.15,1.02,3863,64.1
+RSI2,"{'trend_ma': 100, 'exit_ma': 5, 'lo': 10, 'hi': 95, 'stop_atr': 2.0}",-0.5,-4.9,-0.29,0.96,3024,61.9
+RSI2,"{'trend_ma': 100, 'exit_ma': 5, 'lo': 10, 'hi': 95, 'stop_atr': 3.0}",-0.2,-2.7,-0.16,0.97,2874,63.0
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 5, 'hi': 90, 'stop_atr': 2.0}",-0.5,-5.7,-0.26,0.96,3534,61.7
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 5, 'hi': 90, 'stop_atr': 3.0}",-0.6,-4.8,-0.46,0.93,3309,62.6
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 5, 'hi': 95, 'stop_atr': 2.0}",-0.7,-4.7,-0.48,0.93,2439,60.8
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 5, 'hi': 95, 'stop_atr': 3.0}",-0.7,-4.3,-0.65,0.89,2294,61.9
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 10, 'hi': 90, 'stop_atr': 2.0}",-0.9,-6.9,-0.42,0.95,4603,61.7
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 10, 'hi': 90, 'stop_atr': 3.0}",-0.6,-5.0,-0.41,0.94,4276,62.7
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 10, 'hi': 95, 'stop_atr': 2.0}",-1.1,-7.5,-0.62,0.92,3508,61.1
+RSI2,"{'trend_ma': 200, 'exit_ma': 5, 'lo': 10, 'hi': 95, 'stop_atr': 3.0}",-0.7,-4.7,-0.57,0.92,3261,62.1
