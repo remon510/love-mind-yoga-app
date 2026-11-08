@@ -10,7 +10,8 @@
   trend  : 4時間足MA100の傾きがプラスなら買いのみ、マイナスなら売りのみ（確定足の値）
 決済
   損切り: レンジの反対側（sl=far）または中央（sl=mid）
-  利確  : 損切り幅×RR（rr=0 なら利確なし）
+  利確  : 損切り幅×RR（rr=0 なら利確なし）。tp_width>0 なら東京の値幅×tp_width
+          （tp_from="edge": ブレイクした側の端から / "entry": エントリー価格から）
   時間  : 23:00（NY時間の終わり）で必ず決済
   同じ足で損切りと利確の両方に届いたら、損切りとみなす（不利な側）
 
@@ -38,7 +39,7 @@ def hm(ts):
     return ts.hour * 60 + ts.minute
 
 
-def simulate(df, setup, filt, sl_mode, rr, spread, pip=PIP):
+def simulate(df, setup, filt, sl_mode, rr, spread, pip=PIP, tp_width=0, tp_from="edge"):
     rs, re_, es, ee = [h * 60 + m for h, m in SETUPS[setup]]
     eod = EOD[0] * 60 + EOD[1]
     trades = []
@@ -69,6 +70,9 @@ def simulate(df, setup, filt, sl_mode, rr, spread, pip=PIP):
             if risk <= spread * pip:
                 break
             tp = entry + side * risk * rr if rr else None
+            if tp_width:                                # 東京の値幅の何倍で利確するか
+                base = (hi if side > 0 else lo) if tp_from == "edge" else entry
+                tp = base + side * width * tp_width
             exit_p, k, reason = None, j, "時間決済"
             for k in range(j, len(g)):
                 if mins[k] >= eod:
