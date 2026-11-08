@@ -9,6 +9,7 @@
 | `search_result_d1.csv` / `search_result_h4.csv` | 各手法で学習期間に最も良かった設定の、検証期間の成績 |
 | `search_train_grid_*.csv` | 学習期間の全設定の成績 |
 | `daytrade.py` / `daytrade_result.csv` | デイトレ（東京ブレイク・ロンドン初動ブレイク）をドル円15分足で、学習/検証に分けて検証 |
+| `daytrade_gold.py` / `daytrade_gold_result.csv` | 東京ブレイクをゴールドドルと合成ゴールド円で検証 |
 | `daytrade_robustness.py` | 東京ブレイクの頑健性チェック（スプレッド・年別・売買別・他の通貨ペア） |
 
 ```
