@@ -1,8 +1,9 @@
 // content.js を Markdown（画像は figures/ を相対参照）に書き出す
-//   node export_markdown.js  → FX包み足_原稿.md
+//   node export_markdown.js [content.js] [出力名]  → <出力名>.md
 const fs = require("fs");
 const path = require("path");
-const book = require("./content");
+const book = require(path.resolve(process.argv[2] || path.join(__dirname, "content.js")));
+const OUT_NAME = process.argv[3] || "FX包み足_原稿";
 
 const md = [`# ${book.title}`, "", `## ${book.subtitle}`, "", book.author, ""];
 const tableMd = (rows) => [
@@ -31,5 +32,5 @@ for (const b of book.blocks) {
     default: throw new Error("unknown block " + b.t);
   }
 }
-fs.writeFileSync(path.join(__dirname, "FX包み足_原稿.md"), md.join("\n"));
+fs.writeFileSync(path.join(__dirname, OUT_NAME + ".md"), md.join("\n"));
 console.log("ok");

@@ -1,5 +1,5 @@
 // 書籍原稿（Word）を content.js から組み立てる
-//   node build_book.js  → FX包み足_原稿.docx
+//   node build_book.js [content.js] [出力名]  → <出力名>.docx（既定: content.js → FX包み足_原稿.docx）
 const fs = require("fs");
 const path = require("path");
 const {
@@ -7,7 +7,8 @@ const {
   WidthType, ShadingType, BorderStyle, AlignmentType, LevelFormat, PageBreak, Footer,
   PageNumber, TableOfContents,
 } = require("docx");
-const book = require("./content");
+const book = require(path.resolve(process.argv[2] || path.join(__dirname, "content.js")));
+const OUT_NAME = process.argv[3] || "FX包み足_原稿";
 
 const MINCHO = { ascii: "Yu Mincho", eastAsia: "游明朝", hAnsi: "Yu Mincho" };
 const GOTHIC = { ascii: "Yu Gothic", eastAsia: "游ゴシック", hAnsi: "Yu Gothic" };
@@ -187,7 +188,7 @@ const doc = new Document({
 });
 
 Packer.toBuffer(doc).then((buf) => {
-  const out = path.join(__dirname, "FX包み足_原稿.docx");
+  const out = path.join(__dirname, OUT_NAME + ".docx");
   fs.writeFileSync(out, buf);
   console.log("wrote", out);
 });

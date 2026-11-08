@@ -69,23 +69,27 @@ def simulate(df, setup, filt, sl_mode, rr, spread, pip=PIP):
             if risk <= spread * pip:
                 break
             tp = entry + side * risk * rr if rr else None
-            exit_p = None
+            exit_p, k, reason = None, j, "時間決済"
             for k in range(j, len(g)):
                 if mins[k] >= eod:
                     exit_p = o[k]
                     break
                 if (l[k] <= stop) if side > 0 else (h[k] >= stop):
-                    exit_p = stop
+                    exit_p, reason = stop, "損切り"
                     break
                 if tp is not None and ((h[k] >= tp) if side > 0 else (l[k] <= tp)):
-                    exit_p = tp
+                    exit_p, reason = tp, "利確"
                     break
             if exit_p is None:
                 exit_p = c[-1]
             exit_p -= side * spread * pip / 2
             pips = (exit_p - entry) * side / pip
             trades.append(dict(date=pd.Timestamp(day), side=side, risk_pips=risk / pip, pips=pips,
-                               r=(exit_p - entry) * side / risk))
+                               r=(exit_p - entry) * side / risk,
+                               signal_time=g.index[i], entry_time=g.index[j],
+                               exit_time=g.index[min(k, len(g) - 1)],
+                               range_hi=hi, range_lo=lo, entry=entry, stop=stop, exit=exit_p,
+                               exit_reason=reason))
             break
     return pd.DataFrame(trades)
 
