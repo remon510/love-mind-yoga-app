@@ -6,7 +6,7 @@
 | ファイル | 内容 |
 |---|---|
 | `trades.csv` | 全2,053トレード（スプレッド0.3pips） |
-| `TokyoBreakEA.mq4` / `.mq5` | EA（MT4/MT5での動作確認はまだ） |
+| `TokyoBreakEA.mq4` / `.mq5` | EA（MT4/MT5での動作確認はまだ）。TakeProfitRangeX=2 で「東京の値幅×2で利確」 |
 | `content.js` | 教材本文（../book/build_book.js で Word に組む） |
 | `render_examples.py` | 実例チャート（日本時間表示） |
 | `make_charts.py` | 残高推移・年別グラフ |

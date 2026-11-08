@@ -9,7 +9,9 @@
 //|   エントリー   : RangeEndHour 〜 EntryEndHour の前までに確定した  |
 //|                  15分足の終値が値幅を抜けたら、次の足の始値で      |
 //|   損切り       : 値幅の反対側                                    |
-//|   決済         : ExitHour になったら必ず決済（利確の指値なし）    |
+//|   利確         : TakeProfitRangeX>0 なら、ブレイクした側の端から  |
+//|                  東京の値幅×TakeProfitRangeX で利確（0なら利確なし）|
+//|   決済         : ExitHour になったら必ず決済                      |
 //+------------------------------------------------------------------+
 #property strict
 
@@ -18,6 +20,7 @@ input int    RangeStartHour  = 3;      // 東京の値幅を測り始める時�
 input int    RangeEndHour    = 10;     // 東京の値幅を測り終える時（この時の前まで）
 input int    EntryEndHour    = 18;     // この時の前までに確定した足のブレイクだけ入る
 input int    ExitHour        = 23;     // この時になったら必ず決済
+input double TakeProfitRangeX = 0.0;   // 利確: 東京の値幅の何倍か（ブレイクした側の端から）0なら利確なし
 input double RiskPercent     = 1.0;    // 1トレードの許容損失(残高の%) 0なら固定ロット
 input double FixedLots       = 0.1;    // 固定ロット(RiskPercent=0のとき)
 input double MaxSpreadPips   = 2.0;    // これより広いスプレッドではエントリーしない
@@ -109,7 +112,7 @@ double CalcLots(double slDistance)
 
 int OnInit()
 {
-   if(RangeStartHour < 0 || RangeEndHour <= RangeStartHour || EntryEndHour <= RangeEndHour
+   if(TakeProfitRangeX < 0 || RangeStartHour < 0 || RangeEndHour <= RangeStartHour || EntryEndHour <= RangeEndHour
       || ExitHour <= EntryEndHour || ExitHour > 23)
       return INIT_PARAMETERS_INCORRECT;
    return INIT_SUCCEEDED;
@@ -144,15 +147,19 @@ void OnTick()
    {
       double risk = Ask - lo;
       if(risk <= minStop || risk <= Ask - Bid) return;
+      double tp = TakeProfitRangeX > 0 ? hi + (hi - lo) * TakeProfitRangeX : 0;
+      if(tp > 0 && tp - Ask <= minStop) tp = 0;    // すでに目標を超えているときは利確なし
       ticket = OrderSend(Symbol(), OP_BUY, CalcLots(risk), Ask, slippage,
-                         NormalizeDouble(lo, Digits), 0, "TokyoBreak", Magic, 0, clrRed);
+                         NormalizeDouble(lo, Digits), NormalizeDouble(tp, Digits), "TokyoBreak", Magic, 0, clrRed);
    }
    else
    {
       double risk = hi - Bid;
       if(risk <= minStop || risk <= Ask - Bid) return;
+      double tp = TakeProfitRangeX > 0 ? lo - (hi - lo) * TakeProfitRangeX : 0;
+      if(tp > 0 && Bid - tp <= minStop) tp = 0;    // すでに目標を超えているときは利確なし
       ticket = OrderSend(Symbol(), OP_SELL, CalcLots(risk), Bid, slippage,
-                         NormalizeDouble(hi, Digits), 0, "TokyoBreak", Magic, 0, clrBlue);
+                         NormalizeDouble(hi, Digits), NormalizeDouble(tp, Digits), "TokyoBreak", Magic, 0, clrBlue);
    }
    if(ticket < 0) Print("OrderSend failed: ", GetLastError());
 }
